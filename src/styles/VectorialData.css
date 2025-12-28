@@ -1,0 +1,94 @@
+.vector-dashboard {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    /* AXIOMA: Interacción habilitada */
+    pointer-events: auto;
+    z-index: 10;
+}
+
+.vector-empty {
+    text-align: center; color: #666; margin-top: 50px; font-family: monospace;
+}
+
+.vector-card {
+    background: rgba(15, 15, 20, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.header-card {
+    border-top: 4px solid #fff; /* Se sobrescribe inline */
+    text-align: center;
+}
+
+.header-card h3 {
+    margin: 0 0 20px 0;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.diagnosis-block {
+    background: rgba(0, 0, 0, 0.3);
+    color: #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: left;
+    white-space: pre-wrap;
+    border: 1px dashed rgba(255,255,255,0.1);
+}
+
+/* GRID ROBUSTO */
+.vector-grid-container {
+    display: grid;
+    /* Esto asegura que si falta espacio, bajen a la siguiente linea, pero intenten estar en 3 cols */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+.vector-stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    transition: background 0.3s;
+}
+
+.vector-stat-box:hover {
+    background: rgba(255,255,255,0.07);
+}
+
+.stat-label {
+    font-size: 0.6rem;
+    color: #888;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: bold;
+    font-family: monospace;
+}
+.stat-value.big { font-size: 2rem; }
+.stat-value.small { font-size: 0.8rem; text-align: center; }

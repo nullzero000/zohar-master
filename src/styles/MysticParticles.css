@@ -1,0 +1,57 @@
+/* src/styles/MysticParticles.css */
+
+.mystic-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1; /* Fondo profundo */
+}
+
+.bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    /* El gradiente crea el efecto "Burbuja" o "Orbe Espiritual" */
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.01) 60%, transparent 80%);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    animation: rise var(--duration) linear infinite;
+    animation-delay: var(--delay);
+    bottom: -100px; /* Empiezan fuera de pantalla */
+}
+
+/* Variación Azul (Sefirot) */
+.bubble.blue {
+    background: radial-gradient(circle at 30% 30%, rgba(100, 180, 255, 0.2), rgba(60, 100, 200, 0.05) 60%, transparent 80%);
+    box-shadow: 0 0 30px rgba(0, 100, 255, 0.1);
+}
+
+/* Variación Dorada (Keter/Divinidad) */
+.bubble.gold {
+    background: radial-gradient(circle at 30% 30%, rgba(255, 215, 50, 0.15), rgba(200, 150, 0, 0.05) 60%, transparent 80%);
+    box-shadow: 0 0 30px rgba(255, 200, 0, 0.1);
+}
+
+@keyframes rise {
+    0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: var(--opacity); /* Aparecen suavemente */
+    }
+    50% {
+        /* Movimiento lateral suave */
+        transform: translateY(calc(var(--move-y) * 0.5)) translateX(var(--move-x)) scale(1.1);
+    }
+    90% {
+        opacity: var(--opacity);
+    }
+    100% {
+        transform: translateY(var(--move-y)) translateX(calc(var(--move-x) * 2)) scale(1.2);
+        opacity: 0;
+    }
+}

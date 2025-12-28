@@ -1,0 +1,200 @@
+/* src/styles/HebrewInput.css */
+
+/* =========================================
+   CONTENEDOR PRINCIPAL (EL ARCA)
+   ========================================= */
+
+.input-wrapper {
+  position: relative;
+  width: 90vw;
+  max-width: 800px;
+  min-height: 160px; /* Altura cómoda para ver las letras grandes */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+  z-index: 20;
+  
+  /* MATERIALIDAD DE CRISTAL AHUMADO */
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  
+  /* BORDES Y LUZ */
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15); /* Luz cenital */
+  
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),    /* Sombra profunda */
+    inset 0 0 30px rgba(255, 255, 255, 0.03); /* Luz interior */
+}
+
+/* =========================================
+   ESTADO: MANIFESTACIÓN (FULL SCREEN)
+   ========================================= */
+.manifest-mode {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  border-radius: 0;
+  
+  /* Eliminar background del contenedor para ver el fondo cósmico */
+  background: transparent !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  
+  margin: 0 !important;
+  z-index: 9999; 
+}
+
+/* =========================================
+   DISPLAY DE LETRAS
+   ========================================= */
+
+.hebrew-display-container {
+  width: 100%;
+  height: 100%;
+  padding: 0 60px; /* Espacio para el botón de borrar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  
+  /* Ocultar scrollbars */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hebrew-display-container::-webkit-scrollbar {
+  display: none;
+}
+
+.letters-flex-container {
+  display: flex;
+  flex-wrap: nowrap; /* En modo origen, no hacemos wrap, scrolleamos */
+  align-items: center;
+  gap: 2px;
+  direction: rtl; /* Importante: el flujo es de derecha a izquierda */
+}
+
+/* En modo manifestación, permitimos wrap si es necesario o ajustamos tamaño */
+.manifest-mode .letters-flex-container {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* =========================================
+   LA LETRA VIVA (TIPOGRAFÍA)
+   ========================================= */
+
+.hebrew-char {
+  font-family: 'Times New Roman', serif; /* O tu fuente hebrea sagrada */
+  font-weight: bold;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+  
+  /* Tamaño base responsivo */
+  font-size: clamp(3.5rem, 8vw, 6rem);
+}
+
+.manifest-mode .hebrew-char {
+  font-size: clamp(5rem, 15vmin, 20rem);
+  animation: levitateChar 6s ease-in-out infinite;
+}
+
+/* ANIMACIÓN: LEVITACIÓN MÍSTICA */
+@keyframes levitateChar { 
+  0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); } 
+  50% { transform: translateY(-20px) scale(1.02); filter: brightness(1.2); } 
+}
+
+/* =========================================
+   ESTADOS Y CONTROLES
+   ========================================= */
+
+/* ESTADO: ESPERANDO SECUENCIA */
+.empty-state-breathing {
+  font-family: monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.2);
+  animation: breathe 4s infinite ease-in-out;
+  text-transform: uppercase;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+}
+
+/* BOTÓN BORRAR */
+.delete-btn-premium {
+  position: absolute;
+  left: 20px; /* A la izquierda (el fin de la cadena RTL) */
+  top: 50%;
+  transform: translateY(-50%);
+  
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 30;
+}
+
+.delete-btn-premium:hover {
+  background: rgba(200, 50, 50, 0.2);
+  border-color: rgba(200, 50, 50, 0.4);
+  color: rgba(255, 200, 200, 0.9);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 15px rgba(200, 50, 50, 0.3);
+}
+
+/* =========================================
+   ELEMENTOS ATMOSFÉRICOS (RAYOS Y FONDO)
+   ========================================= */
+.ein-sof-layer {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 120%; height: 200%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.rays-layer {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 150%; height: 150%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg, 
+    transparent 0deg, 
+    rgba(255, 255, 255, 0.02) 20deg, 
+    transparent 40deg, 
+    rgba(255, 255, 255, 0.01) 60deg, 
+    transparent 90deg
+  );
+  animation: rotateRays 60s linear infinite;
+  pointer-events: none;
+  z-index: -2;
+}
+
+@keyframes rotateRays {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
