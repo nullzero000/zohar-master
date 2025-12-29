@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { createPortal } from 'react-dom'; // IMPORTANTE: Portal
+import { createPortal } from 'react-dom';
 import { useGematriaStore } from '@/stores/gematriaStore';
 import { getHebrewColor, getRecursiveExpansion } from '@/lib/gematriaUtils';
 import { TORAH_FIRST_WORDS } from '@/lib/constants';
 import '@/styles/TreeOfLife.css';
 
-// --- CONFIGURACIÓN DE SEFIROT ---
+// ... (MANTÉN LAS CONSTANTES SEFIROT Y PATHS IGUAL QUE ANTES) ...
+// Para ahorrar espacio aquí, asumo que ya las tienes. Si no, pídemelas.
+// (Incluiré la interfaz y constantes si copias y pegas directo para evitar errores)
+
 interface SefiraDef { id: string; x: number; y: number; label: string; sub: string; color: string; hidden?: boolean; }
 const SEFIROT: Record<string, SefiraDef> = {
   KETER:   { id: 'KETER',   x: 300, y: 80,  label: 'KETER',   sub: 'CROWN',         color: '#FFFFFF' },
@@ -37,10 +40,7 @@ export const TreeOfLifeView = () => {
   const [hoverData, setHoverData] = useState<{ path: string | null, x: number, y: number }>({ path: null, x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
 
-  // Aseguramos que estamos en el cliente para usar Portals
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   const activeText = getRecursiveExpansion(inputText || '', expansionLevel);
   const { activeLetters, pathIntensity } = useMemo(() => {
@@ -51,16 +51,15 @@ export const TreeOfLifeView = () => {
   }, [activeText]);
 
   const handleMouseMove = (e: React.MouseEvent, letter: string) => {
-    // Actualizamos posición del mouse global
     setHoverData({ path: letter, x: e.clientX, y: e.clientY });
   };
-
   const clearHover = () => setHoverData(prev => ({ ...prev, path: null }));
 
   return (
     <div className="tree-wrapper fade-in-panel">
       <div className="tree-glass-panel">
         
+        {/* Ajuste de viewBox y preserveAspectRatio para llenar mejor */}
         <svg viewBox="0 0 600 1100" preserveAspectRatio="xMidYMid meet" className="kabbalah-svg">
             <defs>
                 <filter id="glow-sefira">
@@ -69,41 +68,36 @@ export const TreeOfLifeView = () => {
                 </filter>
             </defs>
 
-            {/* SENDEROS */}
             {Object.entries(PATHS).map(([letter, [startKey, endKey]]) => {
                 const start = SEFIROT[startKey]; const end = SEFIROT[endKey];
                 if (!start || !end) return null;
                 const isActive = activeLetters.has(letter);
                 const color = getHebrewColor(letter, school);
                 
-                // Colores
-                const stroke = isActive ? color : '#333';
-                const width = isActive ? 4 : 1;
-                const opacity = isActive ? 1 : 0.3;
+                // VISIBILIDAD AUMENTADA:
+                // Gris #444 (más claro) y Opacidad 0.6 para inactivos
+                const stroke = isActive ? color : '#555'; 
+                const width = isActive ? 6 : 2; 
+                const opacity = isActive ? 1 : 0.6;
 
                 return (
                     <g key={letter}>
-                        {/* ZONA DE DETECCIÓN (Invisible pero gruesa) */}
-                        <line 
-                            x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
-                            stroke="rgba(0,0,0,0)" // Transparente seguro
-                            strokeWidth={50} // Muy grueso para facilitar hover
+                        {/* Zona Hover */}
+                        <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
+                            stroke="rgba(0,0,0,0)" strokeWidth={60} 
                             onMouseMove={(e) => isActive && handleMouseMove(e, letter)} 
                             onMouseLeave={clearHover}
                             style={{ cursor: isActive ? 'crosshair' : 'default' }} 
                         />
-                        
-                        {/* LÍNEA VISUAL (Estética) */}
+                        {/* Glow Activo */}
                         {isActive && (
-                            <line 
-                                x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
-                                stroke={color} strokeWidth={8} strokeOpacity={0.2} strokeLinecap="round" 
-                                className="path-pulse" 
-                                style={{ pointerEvents: 'none' }} // Ignora mouse, deja pasar a la zona de detección
+                            <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
+                                stroke={color} strokeWidth={12} strokeOpacity={0.3} strokeLinecap="round" 
+                                className="path-pulse" style={{ pointerEvents: 'none' }} 
                             />
                         )}
-                        <line 
-                            x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
+                        {/* Línea Base */}
+                        <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
                             stroke={stroke} strokeWidth={width} strokeOpacity={opacity} strokeLinecap="round" 
                             style={{ pointerEvents: 'none' }}
                         />
@@ -111,7 +105,6 @@ export const TreeOfLifeView = () => {
                 );
             })}
 
-            {/* SEFIROT */}
             {Object.values(SEFIROT).map(sefira => (
                 <g key={sefira.id} style={{ opacity: sefira.hidden ? 0.6 : 1 }}>
                     <circle cx={sefira.x} cy={sefira.y} r={sefira.hidden ? 15 : 35} fill={sefira.color} fillOpacity="0.15" filter="url(#glow-sefira)" />
@@ -125,41 +118,26 @@ export const TreeOfLifeView = () => {
                 </g>
             ))}
         </svg>
-
       </div>
 
-      {/* PORTAL PARA TOOLTIP FLOTANTE (Renderizado en el body) */}
       {mounted && hoverData.path && TORAH_FIRST_WORDS[hoverData.path] && createPortal(
-        <div 
-            className="slicer-tooltip-cursor" 
-            style={{ 
-                // Ajuste de posición: un poco desplazado del cursor para no taparlo
-                top: hoverData.y + 15, 
-                left: hoverData.x + 15 
-            }}
-        >
+        <div className="slicer-tooltip-cursor" style={{ top: hoverData.y + 15, left: hoverData.x + 15 }}>
             <div className="slicer-tooltip-content">
                 <div className="tooltip-header">
                     <span className="t-label">PATH: {PATHS[hoverData.path].join(' - ')}</span>
                     <span className="t-label">FREQ: {pathIntensity[hoverData.path]}</span>
                 </div>
                 <div className="tooltip-body">
-                    <span className="tooltip-char-big" style={{ color: getHebrewColor(hoverData.path, school) }}>
-                        {hoverData.path}
-                    </span>
+                    <span className="tooltip-char-big" style={{ color: getHebrewColor(hoverData.path, school) }}>{hoverData.path}</span>
                     <div className="tooltip-info">
                         <span className="t-val t-gold">{TORAH_FIRST_WORDS[hoverData.path].firstWord}</span>
                         <span className="t-sub">{TORAH_FIRST_WORDS[hoverData.path].symbolicMeaning}</span>
                     </div>
                 </div>
-                <div style={{ marginTop: '4px', textAlign: 'right' }}>
-                        <span className="t-label">{TORAH_FIRST_WORDS[hoverData.path].bodyPart}</span>
-                </div>
+                <div style={{ marginTop: '4px', textAlign: 'right' }}><span className="t-label">{TORAH_FIRST_WORDS[hoverData.path].bodyPart}</span></div>
             </div>
-        </div>,
-        document.body // Destino del portal: Body (encima de todo)
+        </div>, document.body
       )}
-
     </div>
   );
 };

@@ -1,159 +1,116 @@
 /* src/styles/Home.css */
 
-/* --- CONTENEDOR MAESTRO --- */
 .home-container {
     position: relative;
     width: 100%;
-    height: 100dvh; /* Altura dinámica real en móvil */
+    height: 100dvh;
     overflow: hidden;
-    background-color: #050505;
+    background-color: #000;
     color: #fff;
     font-family: 'Times New Roman', serif;
 }
 
-/* --- CAPAS DE FONDO --- */
+/* CAPAS DE FONDO */
 .layer-background, .layer-particles, .layer-galaxy { 
     position: absolute; inset: 0; z-index: 0; pointer-events: none; 
-    transition: opacity 1.2s ease;
 }
 
-/* --- CAPA UI (FRENTE) --- */
+/* UI LAYER */
 .layer-ui {
-    position: relative;
-    z-index: 50;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    padding: 1.5rem;
-    pointer-events: none; 
+    position: relative; z-index: 50; width: 100%; height: 100%;
+    display: grid; grid-template-rows: auto 1fr auto; 
+    pointer-events: none; /* Deja pasar clicks al fondo */
+    padding: 1rem;
 }
 
 /* HEADER */
 .ui-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 80px;
-    z-index: 60;
-    gap: 1rem;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 50px; z-index: 60; gap: 0.5rem; pointer-events: none;
 }
 .ui-header > * { pointer-events: auto; }
 
 /* MAIN */
 .ui-main {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    z-index: 55;
+    position: relative; display: flex; align-items: center; justify-content: center;
+    width: 100%; z-index: 55; pointer-events: none;
 }
+.input-container-wrapper { width: 100%; display: flex; justify-content: center; pointer-events: auto !important; }
 
-.input-container-wrapper {
-    transition: opacity 0.5s ease;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    pointer-events: auto; 
-}
-
-/* src/styles/Home.css */
-/* Solo reemplaza la clase data-panel-wrapper y panel-stack */
-
+/* PANEL DE DATOS */
 .data-panel-wrapper {
     position: absolute;
-    /* Ajuste quirúrgico: dejamos un poco de aire arriba y abajo, pero maximizamos espacio */
-    top: 5px; 
-    bottom: 80px; /* Espacio para el footer/controles */
-    left: 10px; 
-    right: 10px;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(10, 10, 12, 0.95);
-    backdrop-filter: blur(25px);
-    z-index: 100;
-    pointer-events: auto;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    overflow: hidden; /* El wrapper no scrollea, lo de adentro sí */
+    top: 60px; bottom: 90px; left: 10px; right: 10px;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(8, 8, 10, 0.98);
+    backdrop-filter: blur(20px);
+    z-index: 100; pointer-events: auto !important;
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 60px rgba(0,0,0,1); overflow: hidden; 
 }
-
-/* El resto de estilos se mantiene igual... */
 
 /* FOOTER */
 .ui-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 1.5rem;
-    z-index: 60;
-    padding-bottom: 2rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    gap: 1rem; z-index: 60; padding-bottom: 2rem;
+    pointer-events: none; /* El contenedor del footer NO debe bloquear */
 }
 
+/* TECLADO */
 .keyboard-wrapper {
-    pointer-events: auto;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    width: 100%; display: flex; justify-content: center;
+    pointer-events: auto !important; /* El teclado SÍ debe recibir clicks */
+    z-index: 205; position: relative;
 }
 
+/* CONTROLES (El Botón Problemático) */
 .controls-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    pointer-events: auto;
-    z-index: 101;
+    display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    pointer-events: auto !important; /* CRÍTICO: Reactivar clicks */
+    z-index: 200; 
+    position: relative;
+    isolation: isolate; /* Crea un nuevo contexto de apilamiento para evitar conflictos */
 }
 
-/* BOTONES */
+/* BOTÓN MANIFESTAR */
 .manifest-btn {
-    font-family: 'Times New Roman', serif;
-    color: #fff;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 14px 32px;
-    border-radius: 100px;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    cursor: pointer;
+    font-family: 'Times New Roman', serif; color: #fff;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 16px 48px; border-radius: 2px;
+    text-transform: uppercase; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.2em;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    transition: all 0.2s;
+    position: relative; overflow: hidden;
+    
+    /* SEGURIDAD DE CLIC */
+    z-index: 999; 
+    pointer-events: auto !important;
+    touch-action: manipulation; /* Mejora la respuesta táctil en móviles */
 }
-.manifest-btn:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+.manifest-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.15); }
 
-.toggle-data-btn {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
-    background: #000;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 10px 24px;
-    border-radius: 99px;
-    cursor: pointer;
-}
-
-/* --- RESPONSIVE MOBILE ADJUSTMENTS --- */
+/* MOBILE */
 @media (max-width: 600px) {
     .home-container { padding: 0; }
-    .layer-ui { padding: 10px; }
-    
-    .data-panel-wrapper { inset: 0; border-radius: 0; }
-    
-    .ui-header { gap: 5px; min-height: 60px; }
-    
-    .keyboard-wrapper {
-        transform: scale(0.85); /* Teclado más chico */
-        margin-bottom: -10px;
+    .layer-ui { padding: 0; }
+    .data-panel-wrapper {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 60px;
+        border-radius: 0; border: none; background: #050505;
+        align-items: flex-start; padding-top: 10px;
     }
+    .keyboard-wrapper { transform: scale(0.9); margin-bottom: -10px; }
+    .mobile-hidden { display: none !important; opacity: 0; pointer-events: none; }
     
-    .controls-wrapper { width: 100%; padding: 0 20px; }
-    .manifest-btn, .toggle-data-btn { width: 100%; text-align: center; }
+    .mobile-nav-bar {
+        position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+        background: #0a0a0c; border-top: 1px solid rgba(255,255,255,0.15);
+        display: flex; justify-content: space-evenly; align-items: center;
+        z-index: 9999; pointer-events: auto;
+    }
 }
 
-/* UTILS */
-.fade-transition { transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.fade-transition { transition: all 0.5s; }
 .is-hidden { opacity: 0; pointer-events: none !important; visibility: hidden; }
 .is-visible { opacity: 1; pointer-events: auto; visibility: visible; }

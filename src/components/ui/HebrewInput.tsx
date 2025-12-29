@@ -1,127 +1,80 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { getHebrewColor, isOntologicalBlack } from '@/lib/gematriaUtils'; // Asegúrate de tener isOntologicalBlack exportado en utils
-import { KabbalahMode } from '@/lib/types';
-import '@/styles/HebrewInput.css';
+import { useGematriaStore } from '@/stores/gematriaStore';
+import { getHebrewColor, isOntologicalBlack } from '@/lib/gematriaUtils';
 
-// AXIOMA: Tipos para el modo de manifestación
-export type ManifestationBg = 'COSMOS' | 'BLACK_HOLE' | 'NEBULA' | 'VOID';
-
-interface HebrewInputProps {
-  value: string;
-  school: KabbalahMode;
-  onDelete: () => void;
-  mode?: 'ORIGIN' | 'MANIFESTATION';
-  manifestBg?: ManifestationBg | string;
+interface Props {
+    value: string;
+    school: any;
+    onDelete: () => void;
+    mode: 'ORIGIN' | 'MANIFESTATION';
+    manifestBg?: 'COSMOS' | 'BLACK_HOLE';
 }
 
-export const HebrewInput = ({ 
-  value, 
-  school, 
-  onDelete, 
-  mode = 'ORIGIN', 
-  manifestBg 
-}: HebrewInputProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isManifesting = mode === 'MANIFESTATION';
+export const HebrewInput = ({ value, school, onDelete, mode }: Props) => {
+    
+    return (
+        <div style={{
+            position: 'relative', width: '100%', maxWidth: '600px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            height: '80px', margin: '10px 0'
+        }}>
+            {/* DISPLAY DE LETRAS */}
+            <div style={{
+                display: 'flex', flexDirection: 'row-reverse', // Hebreo RTL
+                gap: '4px', flexWrap: 'wrap', justifyContent: 'center',
+                width: '100%'
+            }}>
+                {value.split('').map((char, idx) => {
+                    const color = getHebrewColor(char, school);
+                    const isBlack = isOntologicalBlack(color);
 
-  // Auto-scroll (RTL)
-  useEffect(() => {
-    if (containerRef.current && !isManifesting) {
-      containerRef.current.scrollLeft = -containerRef.current.scrollWidth;
-    }
-  }, [value, isManifesting]);
-
-  return (
-    <div className={`input-wrapper ${isManifesting ? 'manifest-mode' : 'origin-mode'}`}>
-      
-      {/* CAPA DE LUZ DIVINA (Solo en modo origen o sin fondo específico) */}
-      {!manifestBg && (
-        <>
-            <div className="ein-sof-layer" />
-            <div className="rays-layer" />
-        </>
-      )}
-
-      {/* DISPLAY */}
-      <div className="hebrew-display-container" ref={containerRef}>
-        {value.length === 0 ? (
-            <div className="empty-state-breathing">ESPERANDO SECUENCIA...</div>
-        ) : (
-            <div className="letters-flex-container">
-                {value.split('').map((char, index) => {
-                  // 1. Obtener Color Ontológico
-                  const rawColor = getHebrewColor(char, school);
-                  
-                  // 2. Detección de "Fuego Negro" (Ortodoxia Gra/Ari)
-                  // Usamos el helper o la lógica inline si el helper no existiera aún
-                  const isBlack = isOntologicalBlack ? isOntologicalBlack(rawColor) : (rawColor === '#000000' || rawColor === 'rgb(0,0,0)');
-
-                  // 3. Definir Estilos Dinámicos
-                  let textShadowStyle = '';
-                  let transformStyle = '';
-                  let finalColor = rawColor;
-
-                  // Lógica de Halo para letras negras (Or Makif)
-                  if (isBlack) {
-                      // El color se mantiene negro absoluto (Kelim), el shadow es luz blanca (Emanación)
-                      textShadowStyle = `0 0 4px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.3)`;
-                  } else {
-                      // Glow normal del color de la letra
-                      textShadowStyle = `0 0 15px ${rawColor}, 0 0 25px ${rawColor}60`;
-                  }
-
-                  // MODO MANIFESTACIÓN (Overrides de ambiente)
-                  if (isManifesting && manifestBg) {
-                      const glowBase = isBlack ? 'white' : rawColor;
-                      switch (manifestBg) {
-                          case 'BLACK_HOLE':
-                              // En agujero negro, la luz se curva y estira
-                              textShadowStyle = `0 0 20px ${glowBase}, 0 0 50px rgba(255, 69, 0, 0.6)`;
-                              const curve = (index - value.length / 2) * 6;
-                              transformStyle = `translateY(${Math.abs(curve)}px) rotate(${curve}deg)`;
-                              break;
-                          case 'COSMOS':
-                          default:
-                              textShadowStyle = isBlack 
-                                ? `0 0 40px white, 0 0 80px rgba(255,255,255,0.5)`
-                                : `0 0 40px ${glowBase}, 0 0 80px white`;
-                              break;
-                      }
-                  } 
-
-                  return (
-                    <span 
-                        key={`${char}-${index}`} 
-                        className={`hebrew-char ${isManifesting ? 'manifesting' : ''}`}
-                        style={{ 
-                            color: finalColor,
-                            textShadow: textShadowStyle,
-                            transform: transformStyle,
-                            transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
-                        }}
-                    >
-                        {char}
-                    </span>
-                  );
+                    return (
+                        <span key={idx} style={{
+                            color: color,
+                            fontSize: '2.5rem',
+                            fontFamily: 'Times New Roman, serif',
+                            fontWeight: 'bold',
+                            lineHeight: 1,
+                            
+                            // LA CORRECCIÓN VISUAL:
+                            // Si la letra es negra, le damos un contorno de luz.
+                            textShadow: isBlack 
+                                ? '0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(255, 255, 255, 0.5)' 
+                                : `0 0 15px ${color}, 0 0 30px ${color}`,
+                                
+                            transition: 'all 0.3s ease',
+                            animation: 'pulseLetter 2s infinite ease-in-out'
+                        }}>
+                            {char}
+                        </span>
+                    );
                 })}
+                
+                {/* Cursor parpadeante */}
+                <span style={{
+                    width: '2px', height: '40px', background: '#d4af37',
+                    animation: 'blink 1s infinite', alignSelf: 'center',
+                    marginLeft: '5px', opacity: 0.7
+                }} />
             </div>
-        )}
-      </div>
 
-      {/* BOTÓN BORRAR */}
-      {value.length > 0 && !isManifesting && (
-        <button 
-            className="delete-btn-premium" 
-            onClick={onDelete}
-            aria-label="Borrar última letra"
-        >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-        </button>
-      )}
-    </div>
-  );
+            {/* Botón Borrar (Backspace) */}
+            <button 
+                onClick={onDelete}
+                style={{
+                    position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
+                    background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.3)',
+                    fontSize: '1.5rem', cursor: 'pointer', padding: '10px'
+                }}
+            >
+                ⌫
+            </button>
+
+            <style jsx>{`
+                @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+                @keyframes pulseLetter { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.05); filter: brightness(1.3); } }
+            `}</style>
+        </div>
+    );
 };
