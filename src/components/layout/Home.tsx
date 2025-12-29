@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useGematriaStore } from '@/stores/gematriaStore';
-import { getHebrewColor, isOntologicalBlack } from '@/lib/gematriaUtils'; // Import necesario
+import { getHebrewColor, isOntologicalBlack } from '@/lib/gematriaUtils';
 import '@/styles/Home.css';
 
+// Componentes UI
 import { HebrewInput } from '@/components/ui/HebrewInput';
 import { HebrewKeyboard } from '@/components/ui/HebrewKeyboard';
 import { SchoolSelector } from '@/components/ui/SchoolSelector';
-import { MysticParticles } from '@/components/visuals/MysticParticles';
 import { HebrewGalaxy } from '@/components/visuals/HebrewGalaxy';
 import { GematriaTotal } from '@/components/dashboard/GematriaTotal';
 import { TechnicalView } from '@/components/dashboard/TechnicalView';
@@ -16,6 +17,7 @@ import { TreeOfLifeView } from '@/components/dashboard/TreeOfLifeView';
 import { VectorDataView } from '@/components/dashboard/VectorDataView';
 import { ManifestNavigation } from '@/components/dashboard/ManifestNavigation';
 import { DashboardTabs } from '@/components/dashboard/DashboardTabs';
+import { ManifestationSequence } from '@/components/visuals/ManifestationSequence';
 
 export const Home = () => {
   const { 
@@ -24,6 +26,7 @@ export const Home = () => {
   } = useGematriaStore();
 
   const [isMobile, setIsMobile] = useState(false);
+  const [showSequence, setShowSequence] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 600);
@@ -34,29 +37,43 @@ export const Home = () => {
 
   const handleManifestClick = () => {
     if (inputText.length > 0) {
-        const newState = !isManifesting;
-        setManifesting(newState);
-        if (newState) setOverlayActive(true);
+        if (!isManifesting) {
+            setManifesting(true);
+            setOverlayActive(false); 
+            setShowSequence(true);   
+        } else {
+            handleClose();
+        }
     }
+  };
+
+  const advanceToAnalysis = () => {
+      setShowSequence(false); 
+      setOverlayActive(true); 
+  };
+
+  const handleClose = () => {
+      setManifesting(false);
+      setOverlayActive(false);
+      setShowSequence(false);
   };
 
   return (
     <main className="home-container">
-      
-      {/* CAPA VISUAL */}
       <div className={`layer-galaxy fade-transition ${isManifesting ? 'opacity-20' : 'opacity-100'}`}>
         <HebrewGalaxy text={inputText} school={school} />
       </div>
 
+      <AnimatePresence>
+        {showSequence && <ManifestationSequence onComplete={advanceToAnalysis} />}
+      </AnimatePresence>
+
       <div className="layer-ui">
-        
-        {/* HEADER (Escuelas) */}
-        <header className={`ui-header ${isMobile && isManifesting ? 'mobile-hidden' : ''}`}>
+        <header className={`ui-header ${isManifesting ? 'mobile-hidden' : ''}`}>
             <SchoolSelector />
         </header>
 
-        {/* INPUT PRINCIPAL (Edición) - Se oculta al manifestar */}
-        <section className={`ui-main ${isMobile && isManifesting ? 'mobile-hidden' : ''}`}>
+        <section className={`ui-main ${isManifesting ? 'mobile-hidden' : ''}`}>
             <div className="input-container-wrapper">
                 <HebrewInput 
                     value={inputText} school={school} 
@@ -66,92 +83,48 @@ export const Home = () => {
             </div>
         </section>
 
-        {/* --- PANEL DE DATOS (ANÁLISIS) --- */}
+        {/* --- PANEL DE ANÁLISIS (ESTILO BIO-RESONANCE) --- */}
         <div className={`data-panel-wrapper fade-transition ${isOverlayActive ? 'is-visible' : 'is-hidden'}`}>
+            <button onClick={handleClose} className="panel-close-btn">×</button>
+
             <div className="panel-stack" style={{ 
-                display: 'flex', flexDirection: 'column', width: '100%', height: '100%', 
-                maxWidth: '1200px', padding: isMobile ? '0' : '10px' 
+                width: '100%', height: '100%', maxWidth: '98vw', 
+                display: 'flex', flexDirection: 'column', padding: '10px'
             }}>
                 
-                {/* [NUEVO] VISOR DE SECUENCIA ACTIVA (Solo visible al manifestar) */}
-                {/* Esto asegura que veas las letras aunque el input principal esté oculto */}
-                <div style={{ 
-                    display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2px',
-                    padding: '10px 0 5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    background: 'rgba(0,0,0,0.3)', width: '100%'
-                }}>
-                    {inputText.split('').map((char, i) => {
-                        const color = getHebrewColor(char, school);
-                        const isBlack = isOntologicalBlack(color);
-                        return (
-                            <span key={i} style={{
-                                color: color,
-                                fontSize: '1.5rem', fontFamily: 'Times New Roman', fontWeight: 'bold',
-                                textShadow: isBlack 
-                                    ? '0 0 5px rgba(255,255,255,0.8)' 
-                                    : `0 0 10px ${color}`
-                            }}>
-                                {char}
-                            </span>
-                        );
-                    })}
-                </div>
-
-                {/* NAVEGACIÓN (Niveles) */}
-                <div style={{ padding: '5px 0', width: '100%', flexShrink: 0 }}>
+                {/* 1. NIVELES (TOP) */}
+                <div style={{ flexShrink: 0 }}>
                     <ManifestNavigation />
                 </div>
 
-                {/* GEMATRÍA (Solo en Technical Data) */}
-                {manifestView === 'dossier' && (
-                    <div style={{ flexShrink: 0, marginBottom: '10px' }}>
-                        <GematriaTotal />
+                {/* 2. CONTENIDO (CENTRO) - Sin scroll interno */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '15px', overflow: 'hidden' }}>
+                    <GematriaTotal />
+                    <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
+                        {manifestView === 'dossier' && <TechnicalView />}
+                        {manifestView === 'tree' && <TreeOfLifeView />}
+                        {manifestView === 'vector' && <VectorDataView />}
                     </div>
-                )}
-                
-                {/* TABS (Desktop) */}
-                {!isMobile && <DashboardTabs />}
+                </div>
 
-                {/* CONTENIDO PRINCIPAL */}
-                <div style={{ flex: 1, width: '100%', position: 'relative', overflow: 'hidden' }}>
-                    {manifestView === 'dossier' && <TechnicalView />}
-                    {manifestView === 'tree' && <TreeOfLifeView />}
-                    {manifestView === 'vector' && <VectorDataView />}
+                {/* 3. NAVEGACIÓN (BOTTOM) */}
+                <div style={{ flexShrink: 0, padding: '10px 0' }}>
+                    <DashboardTabs />
                 </div>
             </div>
         </div>
 
-        {/* BARRA MÓVIL */}
-        {isMobile && isOverlayActive && (
-            <div className="mobile-nav-bar">
-                <DashboardTabs />
-                <button onClick={() => setManifesting(false)} style={{ 
-                    background: 'transparent', border: '1px solid #d4af37', 
-                    color: '#d4af37', borderRadius: '50%', width: '40px', height: '40px', 
-                    fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                    ×
-                </button>
-            </div>
+        {/* FOOTER DE EDICIÓN */}
+        {!isOverlayActive && (
+            <footer className="ui-footer">
+                <div className="keyboard-wrapper"><HebrewKeyboard /></div>
+                <div className="controls-wrapper">
+                    <button onClick={handleManifestClick} className="manifest-btn">
+                        MANIFESTAR
+                    </button>
+                </div>
+            </footer>
         )}
-
-        {/* FOOTER / TECLADO */}
-        <footer className={`ui-footer ${isMobile && isManifesting ? 'mobile-hidden' : ''}`}>
-            <div className="keyboard-wrapper">
-                <HebrewKeyboard />
-            </div>
-            <div className="controls-wrapper">
-                <button 
-                    onClick={handleManifestClick} 
-                    className="manifest-btn"
-                    disabled={inputText.length === 0}
-                    style={{ opacity: inputText.length === 0 ? 0.5 : 1 }}
-                >
-                    {isManifesting ? 'DETENER' : 'MANIFESTAR'}
-                </button>
-            </div>
-        </footer>
-
       </div>
     </main>
   );

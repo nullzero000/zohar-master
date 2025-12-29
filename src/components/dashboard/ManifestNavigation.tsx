@@ -11,7 +11,7 @@ export const ManifestNavigation = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '0', // Usamos el gap visual de las líneas
+      gap: '0', 
       width: '100%',
       padding: '10px 0',
       marginBottom: '5px'
@@ -50,12 +50,12 @@ export const ManifestNavigation = () => {
               </span>
             </div>
 
-            {/* LÍNEA CONECTORA (Excepto el último) */}
+            {/* LÍNEA CONECTORA */}
             {idx < LEVELS.length - 1 && (
               <div style={{
                 width: '30px', height: '1px', 
                 background: isPast ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',
-                margin: '0 8px', marginTop: '-10px' // Alinear con rombos
+                margin: '0 8px', marginTop: '-10px'
               }} />
             )}
           </div>

@@ -1,91 +1,121 @@
 'use client';
 
 import { useGematriaStore } from '@/stores/gematriaStore';
-import { getHebrewColor, getHebrewValue, isOntologicalBlack, getRecursiveExpansion } from '@/lib/gematriaUtils';
-import '@/styles/GematriaTotal.css';
+import { getHebrewColor, getHebrewValue, getRecursiveExpansion, isOntologicalBlack } from '@/lib/gematriaUtils';
 
 export const GematriaTotal = () => {
-  const { inputText, school, useSofitMode, expansionLevel } = useGematriaStore();
+  const { inputText, school, expansionLevel } = useGematriaStore();
 
-  if (!inputText) return null;
+  const expandedText = getRecursiveExpansion(inputText || '', expansionLevel);
+  
+  // 1. Calcular valor total
+  const totalValue = expandedText.split('').reduce((acc, char) => {
+    return acc + getHebrewValue(char, true);
+  }, 0);
 
-  // 1. TEXTO ACTIVO
-  const activeText = getRecursiveExpansion(inputText, expansionLevel);
+  // 2. Calcular Mispar Katan (número pequeño)
+  const misparKatan = String(totalValue)
+    .split('')
+    .reduce((acc, digit) => {
+        let sum = acc + parseInt(digit);
+        while(sum > 9) {
+            sum = String(sum).split('').reduce((a, b) => a + parseInt(b), 0);
+        }
+        return sum;
+    }, 0);
 
-  // 2. VALORES
-  const activeTotal = activeText.split('').reduce((acc, char) => acc + getHebrewValue(char, useSofitMode), 0);
-  const activeReduced = (activeTotal - 1) % 9 + 1;
+  // 3. Lógica de Frecuencias Áureas (Top 5 Count Distinct)
+  const frequencyMap = expandedText.split('').reduce((acc: Record<string, number>, char) => {
+    acc[char] = (acc[char] || 0) + 1;
+    return acc;
+  }, {});
 
-  // 3. LÓGICA DE FRECUENCIA (DISTINCT COUNT) PARA VISUALIZACIÓN COMPACTA
-  const renderEquation = () => {
-    // Si es corto, mostramos la ecuación completa
-    if (activeText.length <= 20) {
-        return activeText.split('').map((char, index) => renderCharNode(char, index, false));
-    }
-
-    // Si es largo (Expansiones altas), calculamos el TOP 5
-    const frequencyMap: Record<string, number> = {};
-    activeText.split('').forEach(char => {
-        frequencyMap[char] = (frequencyMap[char] || 0) + 1;
-    });
-
-    // Ordenamos por frecuencia descendente
-    const top5 = Object.entries(frequencyMap)
-        .sort(([, countA], [, countB]) => countB - countA)
-        .slice(0, 5);
-
-    return (
-        <div className="frequency-cluster">
-            <span className="cluster-label">DOMINANT FREQUENCIES (TOP 5 / {activeText.length} CHARS)</span>
-            <div className="cluster-row">
-                {top5.map(([char, count], index) => renderCharNode(char, index, true, count))}
-            </div>
-        </div>
-    );
-  };
-
-  // Helper para renderizar nodo
-  const renderCharNode = (char: string, index: number, isCluster: boolean, count?: number) => {
-    const val = getHebrewValue(char, useSofitMode);
-    const color = getHebrewColor(char, school);
-    const isBlack = isOntologicalBlack(color);
-
-    return (
-        <div key={`${char}-${index}`} className="equation-node">
-            <span 
-                className="eq-char" 
-                style={{ 
-                    color: color,
-                    textShadow: isBlack ? '0 0 4px rgba(255,255,255,0.6)' : `0 0 8px ${color}`,
-                    fontSize: isCluster ? '1.5rem' : '1.2rem'
-                }}
-            >
-                {char}
-            </span>
-            {/* Si es cluster mostramos el conteo, si no, el valor */}
-            <span className="eq-val">{isCluster ? `x${count}` : val}</span>
-            {!isCluster && index < activeText.length - 1 && <span className="eq-plus">+</span>}
-        </div>
-    );
-  };
+  const topFrequencies = Object.entries(frequencyMap)
+    .map(([char, count]) => ({
+        char,
+        count,
+        color: getHebrewColor(char, school)
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
 
   return (
-    <div className="total-engine-container fade-in">
-      <div className="total-display-wrapper">
-        <div className="main-value-group">
-            <span className="label-micro">GEMATRÍA (LVL {expansionLevel})</span>
-            <span className="value-macro">{activeTotal}</span>
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      padding: '15px',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.1)',
+      borderRadius: '12px',
+      width: '100%', maxWidth: '380px', // Un poco más ancho para las frecuencias
+      margin: '0 auto',
+      position: 'relative',
+      gap: '15px'
+    }}>
+      
+      {/* SECCIÓN SUPERIOR: GEMATRÍA Y MISPAR KATAN */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+          <span style={{ fontSize: '0.5rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.5)', marginBottom: '5px', fontWeight: 'bold' }}>
+              GEMATRÍA (LVL {expansionLevel})
+          </span>
+          <span style={{ fontSize: '3rem', fontWeight: '700', lineHeight: 1, color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.3)' }}>
+              {totalValue}
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '8px', marginTop: '10px', opacity: 0.8 }}>
+              {expandedText.slice(0, 7).split('').map((char, i) => {
+                  const val = getHebrewValue(char, false);
+                  const color = getHebrewColor(char, school);
+                  return (
+                      <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <span style={{ fontSize: '1rem', fontFamily: 'Times New Roman', fontWeight: 'bold', color: color, textShadow: isOntologicalBlack(color) ? '0 0 5px white' : 'none' }}>
+                              {char}
+                          </span>
+                          <span style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.4)' }}>{val}</span>
+                      </div>
+                  );
+              })}
+              {expandedText.length > 7 && <span style={{ alignSelf: 'center', fontSize: '0.8rem' }}>...</span>}
+          </div>
         </div>
-        <div className="divider-vertical" />
-        <div className="sub-value-group">
-            <span className="label-micro">MISPAR KATAN</span>
-            <span className="value-midi">{activeReduced === 0 ? 0 : activeReduced}</span>
+
+        <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.1)', margin: '0 20px' }} />
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.5rem', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.5)', marginBottom: '5px', fontWeight: 'bold', textAlign: 'center' }}>
+              MISPAR KATAN
+          </span>
+          <span style={{ fontSize: '2rem', fontWeight: '400', color: 'rgba(255,255,255,0.9)' }}>
+              {misparKatan}
+          </span>
         </div>
       </div>
 
-      <div className="equation-track">
-        {renderEquation()}
+      {/* BLOQUE DE FRECUENCIAS ÁUREAS (Top 5 Count Distinct) */}
+      <div style={{ 
+          paddingTop: '15px', 
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+          width: '100%'
+      }}>
+          <span style={{ fontSize: '0.5rem', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', display: 'block', textAlign: 'center', marginBottom: '8px' }}>
+              DOMINANT FREQUENCIES (TOP 5 / {new Set(expandedText).size} CHARS)
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: 'center', gap: '15px' }}>
+              {topFrequencies.map((f, i) => (
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <span style={{ 
+                          fontSize: '1.2rem', fontWeight: 'bold', color: f.color,
+                          textShadow: isOntologicalBlack(f.color) ? '0 0 5px white' : 'none'
+                      }}>
+                          {f.char}
+                      </span>
+                      <span style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.5)', fontFamily: 'Courier New' }}>
+                          x{f.count}
+                      </span>
+                  </div>
+              ))}
+          </div>
       </div>
+
     </div>
   );
 };

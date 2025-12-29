@@ -37,16 +37,45 @@
 }
 .input-container-wrapper { width: 100%; display: flex; justify-content: center; pointer-events: auto !important; }
 
-/* PANEL DE DATOS */
+/* PANEL DE DATOS (Overlay) */
 .data-panel-wrapper {
     position: absolute;
-    top: 60px; bottom: 90px; left: 10px; right: 10px;
+    top: 50px; bottom: 80px; left: 10px; right: 10px; /* Márgenes pequeños */
     display: flex; justify-content: center; align-items: center;
     background: rgba(8, 8, 10, 0.98);
     backdrop-filter: blur(20px);
-    z-index: 100; pointer-events: auto !important;
-    border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 0 60px rgba(0,0,0,1); overflow: hidden; 
+    z-index: 100; 
+    pointer-events: auto !important;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 60px rgba(0,0,0,1);
+    overflow: hidden; 
+}
+
+/* BOTÓN DE CIERRE (RETORNO) */
+.panel-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 200; /* Encima de todo dentro del panel */
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.panel-close-btn:hover {
+    background: rgba(255, 69, 58, 0.2);
+    border-color: rgba(255, 69, 58, 0.5);
+    color: #ff453a;
+    transform: scale(1.1);
 }
 
 /* FOOTER */
