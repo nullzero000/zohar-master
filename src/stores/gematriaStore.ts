@@ -1,80 +1,97 @@
 import { create } from 'zustand';
-import { type KabbalahMode } from '@/lib/types';
+import { KabbalahMode } from '@/lib/types';
+import { getHebrewValue } from '@/lib/gematriaUtils';
 
-interface MiluyLevel {
-  level: number;
-  chars: string[];
-  totalValue: number;
-  reducedValue: number;
-}
-
-interface AnalysisData {
-  mixedColor: string;
-  mixedColorName: string;
-  frequencyMap: Record<string, number>;
-  dominant: string;
-  total: number;
-  diagnosis?: string;
-}
-
+// 1. DEFINICIÓN DE LA INTERFAZ DE ESTADO (El Contrato)
 interface GematriaState {
+  // --- Datos de Entrada ---
   inputText: string;
   school: KabbalahMode;
-  isManifesting: boolean;
-  isOverlayActive: boolean;
-  manifestView: 'dossier' | 'tree' | 'vector';
-  
-  // NUEVO: Modo Gematria Sofit (500-900)
-  useSofitMode: boolean; 
+  useSofitMode: boolean;
 
-  levels: MiluyLevel[];
-  analysis: AnalysisData | null;
+  // --- Datos Calculados (Salida) ---
   total: number;
   reduced: number;
 
+  // --- Estados de UI (Manifestación) ---
+  isManifesting: boolean;
+  isOverlayActive: boolean;
+  manifestView: 'dossier' | 'tree' | 'vector';
+
+  // --- Niveles de Expansión (Nefesh -> Atzilut) ---
+  expansionLevel: number; // 0 a 5
+
+  // --- Acciones (Setters) ---
   setInputText: (text: string) => void;
   setSchool: (school: KabbalahMode) => void;
-  setManifesting: (isManifesting: boolean) => void;
+  setSofitMode: (active: boolean) => void;
+  setManifesting: (active: boolean) => void;
   setOverlayActive: (active: boolean) => void;
   setManifestView: (view: 'dossier' | 'tree' | 'vector') => void;
-  
-  // NUEVO ACCIÓN
-  setSofitMode: (use: boolean) => void;
-
-  setCalculationData: (data: { 
-      levels: MiluyLevel[]; 
-      analysis: AnalysisData; 
-      total: number; 
-      reduced: number 
-  }) => void;
+  setExpansionLevel: (level: number) => void;
 }
 
-export const useGematriaStore = create<GematriaState>((set) => ({
+// 2. HELPERS DE CÁLCULO (Lógica Pura)
+// Suma dígitos recursivamente hasta obtener un solo dígito (1-9)
+const calculateReduction = (n: number): number => {
+  if (n === 0) return 0;
+  return (n - 1) % 9 + 1;
+};
+
+// Cálculo Maestro de Gematría
+const calculateGematria = (text: string, useSofit: boolean) => {
+  if (!text) return { total: 0, reduced: 0 };
+
+  // Suma Total (Ragil)
+  const total = text.split('').reduce((acc, char) => {
+    return acc + getHebrewValue(char, useSofit);
+  }, 0);
+
+  // Reducción (Katan)
+  const reduced = calculateReduction(total);
+
+  return { total, reduced };
+};
+
+// 3. CREACIÓN DEL STORE (Implementación)
+export const useGematriaStore = create<GematriaState>((set, get) => ({
+  // --- Valores Iniciales ---
   inputText: '',
-  school: 'SeferYetzirah-Standard',
+  school: 'Gra-Canon', // Default estricto
+  useSofitMode: false,
+  total: 0,
+  reduced: 0,
+  
   isManifesting: false,
   isOverlayActive: false,
   manifestView: 'dossier',
   
-  useSofitMode: false, // Por defecto: Gematría Estándar (No usa 500-900)
+  expansionLevel: 0, // Inicia en Base (Nefesh)
 
-  levels: [],
-  analysis: null,
-  total: 0,
-  reduced: 0,
-
-  setInputText: (text) => set({ inputText: text }),
-  setSchool: (school) => set({ school }),
-  setManifesting: (isManifesting) => set({ isManifesting, isOverlayActive: false }),
-  setOverlayActive: (active) => set({ isOverlayActive: active }),
-  setManifestView: (view) => set({ manifestView: view }),
+  // --- Acciones ---
   
-  setSofitMode: (use) => set({ useSofitMode: use }),
+  setInputText: (text: string) => {
+    // Al escribir, recalculamos automáticamente la gematría
+    const { useSofitMode } = get();
+    const { total, reduced } = calculateGematria(text, useSofitMode);
+    set({ inputText: text, total, reduced });
+  },
 
-  setCalculationData: (data) => set({
-      levels: data.levels,
-      analysis: data.analysis,
-      total: data.total,
-      reduced: data.reduced
-  })
+  setSchool: (school: KabbalahMode) => {
+    set({ school });
+  },
+
+  setSofitMode: (useSofitMode: boolean) => {
+    // Al cambiar sofit, recalculamos valores numéricos
+    const { inputText } = get();
+    const { total, reduced } = calculateGematria(inputText, useSofitMode);
+    set({ useSofitMode, total, reduced });
+  },
+
+  setManifesting: (isManifesting: boolean) => set({ isManifesting }),
+  setOverlayActive: (isOverlayActive: boolean) => set({ isOverlayActive }),
+  setManifestView: (manifestView) => set({ manifestView }),
+  
+  // Acción para cambiar el nivel de expansión (Nav Bar)
+  setExpansionLevel: (level: number) => set({ expansionLevel: level }),
 }));

@@ -1,143 +1,124 @@
 'use client';
 
-import { useState } from 'react';
 import { useGematriaStore } from '@/stores/gematriaStore';
-import { HEBREW_DATA } from '@/lib/constants';
-import { getHebrewColor } from '@/utils/logicHelper';
-
-// INTEGRACIÓN: Tabla de Análisis activada
-import { AnalysisTable } from './AnalysisTable'; 
+import { useCosmicEngine } from '@/hooks/useCosmicEngine';
+import { LETTER_HIERARCHY } from '@/lib/constants';
+import { getRecursiveExpansion } from '@/lib/gematriaUtils'; // IMPORTANTE: Nueva utilidad
 import '@/styles/TechnicalDossier.css';
 
-const LEVEL_META: Record<number, { label: string; world: string; focus: string; desc: string }> = {
-    0: { label: 'RAÍZ (NV0)', world: "OLAM HA'ZEH", focus: 'Malchut', desc: 'Realidad Física' },
-    1: { label: 'ALMA (NV1)', world: 'YETZIRÁ', focus: 'Ruach', desc: 'Emoción y Forma' },
-    2: { label: 'MENTE (NV2)', world: 'BERIÁ', focus: 'Neshamá', desc: 'Intelecto Puro' },
-    3: { label: 'LUZ (NV3)', world: 'ATZILUT', focus: 'Chayá', desc: 'Unidad Divina' },
-    4: { label: 'VOLUNTAD (NV4)', world: 'ADAM KADMON', focus: 'Yechidá', desc: 'Voluntad Primordial' },
-};
-
 export const TechnicalDossier = () => {
-  const { levels, school, analysis } = useGematriaStore();
-  const [selectedLevel, setSelectedLevel] = useState(0);
-
-  // Validación de seguridad
-  if (!levels || levels.length === 0 || !analysis) {
-      return <div className="tactical-container"><div className="loading-state">ESPERANDO DATOS DE ENTRADA...</div></div>;
-  }
-
-  const currentLevelData = levels[selectedLevel] || levels[0];
-  const meta = LEVEL_META[selectedLevel];
+  const { inputText, expansionLevel } = useGematriaStore();
   
-  // Datos Dominantes del Análisis Global
-  const domChar = analysis.dominant;
-  const domData = HEBREW_DATA[domChar] || HEBREW_DATA['Aleph'];
+  // 1. OBTENER EL TEXTO REAL DEL NIVEL (Base o Expandido)
+  const activeText = getRecursiveExpansion(inputText, expansionLevel);
 
-  const dynamicStyle = { '--base-color': analysis.mixedColor } as React.CSSProperties;
+  // 2. ALIMENTAR EL MOTOR CON EL TEXTO EXPANDIDO
+  // El motor físico ahora analiza la "realidad expandida", no solo la semilla.
+  const cosmos = useCosmicEngine(activeText);
+
+  // 3. CÁLCULO DE JERARQUÍA SOBRE EL TEXTO EXPANDIDO
+  const stats = activeText.split('').reduce((acc, char) => {
+    const type = LETTER_HIERARCHY[char] || 'SIMPLE';
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, { MOTHER: 0, DOUBLE: 0, SIMPLE: 0 } as Record<string, number>);
+
+  if (!inputText) return null;
 
   return (
-    <div className="tactical-container" style={dynamicStyle}>
+    <div className="dossier-container fade-in-panel">
       
-      {/* 1. NAVEGACIÓN DE PESTAÑAS (Niveles) */}
-      <div className="tactical-nav-wrapper">
-          <div className="tactical-nav">
-            {levels.map((_, idx) => (
-                <button 
-                    key={idx} 
-                    className={`tactical-tab ${selectedLevel === idx ? 'active' : ''}`} 
-                    onClick={() => setSelectedLevel(idx)}
-                >
-                    <span className="tab-label">{LEVEL_META[idx]?.label || `NV${idx}`}</span>
-                </button>
-            ))}
-          </div>
+      {/* CABECERA TÉCNICA */}
+      <div className="dossier-header">
+        <span className="dossier-title">
+            SYSTEM STATUS // {expansionLevel === 0 ? 'BASE SEQUENCE' : `EXPANSION LVL.${expansionLevel}`}
+        </span>
+        <div className="dossier-id">ID: {cosmos.isDivinePresence ? 'YHVH-OVERRIDE' : 'STD-SEQ'}</div>
       </div>
 
-      <div className="dossier-content">
+      <div className="dossier-grid">
+        
+        {/* COLUMNA 1: MÉTRICAS DE CAMPO (Engine Output) */}
+        <div className="dossier-section">
+          <h4 className="section-label">COSMIC METRICS</h4>
           
-          {/* 2. HUD DE NIVEL */}
-          <div className="level-hud-bar">
-              <div className="hud-metric">
-                  <span className="hud-label">MUNDO</span>
-                  <span className="hud-value text-gold">{meta?.world}</span>
-              </div>
-              <div className="hud-divider"></div>
-              <div className="hud-metric">
-                  <span className="hud-label">VALOR</span>
-                  <span className="hud-value">{currentLevelData.totalValue}</span>
-              </div>
-              <div className="hud-divider"></div>
-              <div className="hud-metric">
-                  <span className="hud-label">REDUCCIÓN</span>
-                  <span className="hud-value highlight">{currentLevelData.reducedValue}</span>
-              </div>
-          </div>
-
-          {/* 3. ARQUETIPO DOMINANTE */}
-          {domData && (
-              <div className="torah-block glass-panel">
-                  <div className="panel-header">ARQUETIPO DOMINANTE DEL SISTEMA</div>
-                  <div className="torah-layout">
-                      <div className="hebrew-display-box">
-                          <div className="hebrew-hero">
-                              <span 
-                                className="hebrew-glyph"
-                                style={{ 
-                                    color: getHebrewColor(domChar, school), 
-                                    textShadow: `0 0 25px ${getHebrewColor(domChar, school)}80`
-                                }}
-                              >
-                                {domChar}
-                              </span>
-                          </div>
-                          <span className="phonetic-tag">{domData.name}</span>
-                      </div>
-
-                      <div className="meta-list">
-                          <div className="meta-item">
-                              <span className="meta-key">SIGNIFICADO</span>
-                              <span className="meta-val highlight">{domData.meaning}</span>
-                          </div>
-                          <div className="meta-item">
-                              <span className="meta-key">PLANETA / SIGNO</span>
-                              <span className="meta-val">{domData.planet}</span>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          )}
-
-          {/* 4. ANÁLISIS CLÍNICO */}
-          {domData && domData.sy_data && (
-            <div className="clinical-panel glass-panel">
-                <div className="panel-header alert-header">
-                    <span>MATRIZ CLÍNICA</span>
-                    <span className="status-dot">●</span>
-                </div>
-                <div className="clinical-grid">
-                    <div className="clinical-cell">
-                        <span className="clin-label">LÓGICA ESTRUCTURAL</span>
-                        <span className="clin-val logic">{domData.sy_data.logic}</span>
-                    </div>
-                    <div className="clinical-cell">
-                        <span className="clin-label">DIAGNÓSTICO</span>
-                        <span className="clin-val diag">{domData.sy_data.diag}</span>
-                    </div>
-                    <div className="clinical-cell full-width">
-                        <span className="clin-label">PROTOCOLO DE CORRECCIÓN</span>
-                        <span className="clin-val fix">{domData.sy_data.fix}</span>
-                    </div>
-                </div>
+          {/* Estabilidad (Aleph/Aire) */}
+          <div className="metric-row">
+            <div className="metric-info">
+                <span>STABILITY INDEX</span>
+                <span className="metric-val">{Math.round(cosmos.stabilityIndex)}%</span>
             </div>
-          )}
-
-          {/* 5. REGISTRO DE EXPANSIÓN (TABLA) */}
-          <div className="expansion-registry">
-            <div className="registry-header">REGISTRO DE EXPANSIÓN COMPLETO</div>
-            <AnalysisTable />
+            <div className="bar-track">
+                <div 
+                    className="bar-fill stability" 
+                    style={{ width: `${cosmos.stabilityIndex}%` }} 
+                />
+            </div>
           </div>
+
+          {/* Entropía (Shin/Fuego/Caos) */}
+          <div className="metric-row">
+            <div className="metric-info">
+                <span>ENTROPY LEVEL</span>
+                <span className="metric-val text-alert">{Math.round(cosmos.entropyLevel)}%</span>
+            </div>
+            <div className="bar-track">
+                <div 
+                    className="bar-fill entropy" 
+                    style={{ width: `${cosmos.entropyLevel}%` }} 
+                />
+            </div>
+          </div>
+
+          {/* Luminosidad (Claridad Divina) */}
+          <div className="metric-row">
+            <div className="metric-info">
+                <span>LUMINOSITY</span>
+                <span className="metric-val">{Math.round(cosmos.luminosity)}%</span>
+            </div>
+            <div className="bar-track">
+                <div 
+                    className="bar-fill luminosity" 
+                    style={{ width: `${cosmos.luminosity}%` }} 
+                />
+            </div>
+          </div>
+        </div>
+
+        {/* COLUMNA 2: COMPOSICIÓN ONTOLÓGICA (Hierarchy) */}
+        <div className="dossier-section">
+          <h4 className="section-label">STRUCTURE COMPOSITION</h4>
           
+          <div className="composition-grid">
+            <div className="comp-card mother">
+                <span className="comp-count">{stats.MOTHER}</span>
+                <span className="comp-label">MOTHERS</span>
+                {/* Usamos activeText.length para calcular el porcentaje real de la expansión */}
+                <div className="comp-bar" style={{ height: `${(stats.MOTHER / activeText.length) * 100}%` }} />
+            </div>
+            <div className="comp-card double">
+                <span className="comp-count">{stats.DOUBLE}</span>
+                <span className="comp-label">DOUBLES</span>
+                <div className="comp-bar" style={{ height: `${(stats.DOUBLE / activeText.length) * 100}%` }} />
+            </div>
+            <div className="comp-card simple">
+                <span className="comp-count">{stats.SIMPLE}</span>
+                <span className="comp-label">SIMPLES</span>
+                <div className="comp-bar" style={{ height: `${(stats.SIMPLE / activeText.length) * 100}%` }} />
+            </div>
+          </div>
+        </div>
+
       </div>
+      
+      {/* FOOTER: DOMINANCIA ELEMENTAL */}
+      <div className="dossier-footer">
+        <span className="footer-label">DOMINANT FORCE:</span>
+        <span className={`footer-val force-${cosmos.dominantForce.toLowerCase()}`}>
+            [{cosmos.dominantForce}]
+        </span>
+      </div>
+
     </div>
   );
 };

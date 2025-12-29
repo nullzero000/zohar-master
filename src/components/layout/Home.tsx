@@ -3,160 +3,144 @@
 import { useState } from 'react';
 import { useGematriaStore } from '@/stores/gematriaStore';
 import '@/styles/Home.css';
+import { TechnicalView } from '@/components/dashboard/TechnicalView';
 
-// --- COMPONENTES UI (Los que arreglamos) ---
+// --- COMPONENTES UI ---
 import { HebrewInput } from '@/components/ui/HebrewInput';
 import { HebrewKeyboard } from '@/components/ui/HebrewKeyboard';
 import { SchoolSelector } from '@/components/ui/SchoolSelector';
 
-// --- VISUALES (Asumo que existen según tu árbol de archivos) ---
-// Si alguno da error, coméntalo temporalmente.
+// --- VISUALES ---
 import { LetterGlitch } from '@/components/visuals/LetterGlitch';
 import { MysticParticles } from '@/components/visuals/MysticParticles';
 import { HebrewGalaxy } from '@/components/visuals/HebrewGalaxy';
 
-// --- DASHBOARD (Placeholders/Existentes) ---
+// --- DASHBOARD ---
 import { GematriaTotal } from '@/components/dashboard/GematriaTotal';
 import { TechnicalDossier } from '@/components/dashboard/TechnicalDossier';
+import { AnalysisSliders } from '@/components/dashboard/AnalysisSliders';
 import { TreeOfLifeView } from '@/components/dashboard/TreeOfLifeView';
 import { VectorDataView } from '@/components/dashboard/VectorDataView';
+import { ManifestNavigation } from '@/components/dashboard/ManifestNavigation';
+import { DashboardTabs } from '@/components/dashboard/DashboardTabs';
 
-// Tipo local para el selector de fondo
 type VisualMode = 'GALAXY' | 'PARTICLES' | 'VOID';
 
 export const Home = () => {
-  // 1. Conexión al Cerebro (Store)
   const { 
-    inputText, 
-    setInputText,
-    school, 
-    isManifesting, 
-    setManifesting, // Necesitamos esto para el botón de activar
-    manifestView, 
-    isOverlayActive, 
-    setOverlayActive 
+    inputText, setInputText, school, isManifesting, setManifesting, 
+    manifestView, isOverlayActive, setOverlayActive 
   } = useGematriaStore();
 
   const [visualMode, setVisualMode] = useState<VisualMode>('GALAXY');
 
-  // Función de borrado segura
   const handleDelete = () => {
-    if (inputText.length > 0) {
-      setInputText(inputText.slice(0, -1));
-    }
+    if (inputText.length > 0) setInputText(inputText.slice(0, -1));
   };
-
-  // Lógica de visibilidad forzada cuando hay datos encima
-  const forceHidden = isOverlayActive;
 
   return (
     <main className="home-container">
       
-      {/* =========================================================
-          CAPA 1: VISUALES DE FONDO (El "Ein Sof")
-         ========================================================= */}
-      
-      <div className="layer-background" style={{ opacity: (visualMode === 'VOID' && !forceHidden) ? 1 : 0 }}>
-        {/* Efecto Glitch Base */}
+ {/* CAPAS DE FONDO */}
+      <div className="layer-background" style={{ opacity: (visualMode === 'VOID' && !isOverlayActive) ? 1 : 0 }}>
         <LetterGlitch glitchSpeed={50} centerVignette={true} outerVignette={true} smooth={true} />
       </div>
-
-      <div className="layer-particles" style={{ opacity: (visualMode === 'PARTICLES' && !forceHidden) ? 1 : 0 }}>
-         {/* Partículas místicas reaccionando al texto */}
+      <div className="layer-particles" style={{ opacity: (visualMode === 'PARTICLES' && !isOverlayActive) ? 1 : 0 }}>
          <MysticParticles text={inputText} school={school} />
       </div>
-
-      <div className="layer-galaxy" style={{ opacity: (visualMode === 'GALAXY' && !forceHidden) ? 1 : 0 }}>
-        {/* Galaxia de letras giratorias */}
+      <div className="layer-galaxy" style={{ opacity: (visualMode === 'GALAXY' && !isOverlayActive) ? 1 : 0 }}>
         <HebrewGalaxy text={inputText} school={school} />
       </div>
 
-
-      {/* =========================================================
-          CAPA 2: INTERFAZ DE USUARIO (El "Kelim")
-         ========================================================= */}
       <div className="layer-ui">
         
-        {/* --- HEADER --- */}
+        {/* HEADER */}
         <header className="ui-header">
-            {/* 1. Selector de Escuela (Se oculta al manifestar) */}
             <div className={`fade-transition ${isManifesting ? 'is-hidden' : 'is-visible'}`}>
                 <SchoolSelector />
             </div>
-            
-            {/* 2. Selector Visual (Botones Galaxy/Particles/Void) */}
             <div className={`visual-selector fade-transition ${isManifesting && !isOverlayActive ? 'is-visible' : 'is-hidden'}`}>
                 {(['GALAXY', 'PARTICLES', 'VOID'] as VisualMode[]).map((mode) => (
-                    <button
-                        key={mode}
-                        onClick={() => setVisualMode(mode)}
-                        className={`visual-btn ${visualMode === mode ? 'active' : ''}`}
-                    >
+                    <button key={mode} onClick={() => setVisualMode(mode)} className={`visual-btn ${visualMode === mode ? 'active' : ''}`}>
                         {mode}
                     </button>
                 ))}
             </div>
-
-            {/* 3. Panel de Totales (Solo visible si hay overlay activo) */}
-            <div className={`fade-transition mt-4 ${isOverlayActive ? 'is-visible' : 'is-hidden'}`}>
-                <GematriaTotal />
-            </div>
         </header>
 
-
-        {/* --- MAIN SECTION (EL ARCA) --- */}
+        {/* MAIN SECTION */}
         <section className="ui-main">
             
-            {/* INPUT HEBREO INTELIGENTE 
-                - Ya no necesitamos posicionamiento CSS complejo aquí.
-                - El componente HebrewInput maneja su propia expansión (fixed inset-0) 
-                  cuando mode='MANIFESTATION'.
-            */}
             <div className={`input-container-wrapper ${isOverlayActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                 <HebrewInput 
-                    value={inputText}
-                    school={school}
-                    onDelete={handleDelete}
+                    value={inputText} school={school} onDelete={handleDelete}
                     mode={isManifesting ? 'MANIFESTATION' : 'ORIGIN'}
-                    // Pasamos el modo visual para que el Input pueda adaptar sus efectos (opcional)
                     manifestBg={visualMode === 'VOID' ? 'BLACK_HOLE' : 'COSMOS'} 
                 />
             </div>
 
-            {/* PANELES DE DATOS (DOSSIER TÉCNICO) */}
+                 {/* PANELES DE DATOS (Overlay) */}
             <div className={`data-panel-wrapper fade-transition ${isOverlayActive ? 'is-visible' : 'is-hidden'}`}>
-                {manifestView === 'dossier' && <TechnicalDossier />}
-                {manifestView === 'tree' && <TreeOfLifeView />}
-                {manifestView === 'vector' && <VectorDataView />}
+                
+                <div className="panel-stack" style={{ 
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', 
+                    width: '100%', maxWidth: '900px', 
+                    height: '100%', 
+                    overflow: 'hidden', 
+                    padding: '10px'
+                }}>
+
+                    {/* HEADER FIJO */}
+                    <div style={{ flexShrink: 0, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                        <ManifestNavigation />
+                        {/* Solo mostramos Gematria Total si NO estamos en Árbol (para ganar espacio) */}
+                        {manifestView !== 'tree' && <GematriaTotal />}
+                        <DashboardTabs />
+                    </div>
+
+                    {/* CUERPO FLEXIBLE */}
+                    <div style={{ 
+                        flex: 1, 
+                        width: '100%', 
+                        position: 'relative', 
+                        overflow: 'hidden', // ELIMINAMOS SCROLL DEL PADRE, LO MANEJA CADA VISTA
+                        marginTop: '10px'
+                    }}>
+                        
+                        {/* VISTA A: TECHNICAL DATA (AHORA CON SUB-TABS) */}
+                        {manifestView === 'dossier' && (
+                            <div style={{ width: '100%', height: '100%' }}>
+                                <TechnicalView />
+                            </div>
+                        )}
+
+                        {/* VISTA B: ÁRBOL DE LA VIDA */}
+                        {manifestView === 'tree' && (
+                            <div className="fade-in-panel" style={{ width: '100%', height: '100%' }}>
+                                <TreeOfLifeView />
+                            </div>
+                        )}
+                        
+                        {/* VISTA C: VECTOR */}
+                        {manifestView === 'vector' && <VectorDataView />}
+                    </div>
+                
+                </div>
+
             </div>
         </section>
 
-
-        {/* --- FOOTER --- */}
+        {/* FOOTER */}
         <footer className="ui-footer">
-            
-            {/* TECLADO (Se oculta/escala al manifestar) */}
             <div className={`keyboard-wrapper fade-transition ${isManifesting ? 'is-hidden scale-75' : 'is-visible scale-100'}`}>
                 <HebrewKeyboard />
             </div>
-
-            {/* CONTROLES DE ACCIÓN */}
             <div className="controls-wrapper">
-                
-                {/* Botón Principal: MANIFESTAR / RETORNAR */}
-                <button 
-                    onClick={() => setManifesting(!isManifesting)}
-                    className={`manifest-btn ${inputText.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
-                >
+                <button onClick={() => setManifesting(!isManifesting)} className={`manifest-btn ${inputText.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}>
                     {isManifesting ? 'DETENER EMANACIÓN' : 'MANIFESTAR'}
                 </button>
-                
-                {/* Botón Secundario: VER DATOS (Solo visible al manifestar) */}
                 {isManifesting && (
-                    <button 
-                        onClick={() => setOverlayActive(!isOverlayActive)}
-                        className="toggle-data-btn"
-                    >
+                    <button onClick={() => setOverlayActive(!isOverlayActive)} className="toggle-data-btn">
                         {isOverlayActive ? 'OCULTAR ANÁLISIS' : 'VER DATOS TÉCNICOS'}
                     </button>
                 )}

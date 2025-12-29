@@ -1,0 +1,54 @@
+.dashboard-tabs-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+}
+
+.tab-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.tab-btn.active {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+}
+
+/* Indicador Deslizante (Línea debajo) */
+.tab-indicator {
+    position: absolute;
+    bottom: -1px;
+    height: 2px;
+    background: #d4af37; /* Oro */
+    box-shadow: 0 0 10px #d4af37;
+    width: 120px; /* Ajustar según ancho aprox del botón */
+    transition: left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Posiciones aproximadas (Ajustar según tu layout final) */
+.pos-dossier { left: calc(50% - 160px); }
+.pos-tree    { left: calc(50% - 0px); } /* Centro */
+.pos-vector  { left: calc(50% + 150px); }

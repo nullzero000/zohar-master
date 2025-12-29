@@ -1,68 +1,125 @@
-.core-wrapper {
+/* src/styles/GematriaTotal.css */
+
+.total-engine-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 50;
-    pointer-events: none; /* Dejar pasar clicks excepto en elementos interactivos */
+    gap: 12px;
+    padding: 16px 32px;
+    background: rgba(10, 10, 12, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-top: 10px;
 }
 
-.living-orb {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+/* --- BLOQUE DE VALORES --- */
+.total-display-wrapper {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
-    margin-bottom: 20px;
+    gap: 24px;
 }
 
-.orb-value {
-    font-family: 'Times New Roman', serif;
-    font-size: 3rem;
-    font-weight: 700;
-    color: #ffffff;
-    z-index: 2;
-}
-
-.connection-line {
-    width: 1px;
-    height: 40px;
-    margin-bottom: 15px;
-    opacity: 0.8;
-}
-
-.essence-value {
-    font-family: 'Courier New', monospace;
-    font-size: 1.5rem;
-    font-weight: bold;
-    letter-spacing: 0.1em;
-    margin-bottom: 10px;
-}
-
-.semantic-block {
+.main-value-group, .sub-value-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    line-height: 1;
 }
 
-.semantic-label {
+.label-micro {
     font-size: 0.6rem;
     letter-spacing: 0.2em;
     color: rgba(255, 255, 255, 0.4);
-    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 700;
 }
 
-.semantic-value {
-    font-size: 0.9rem;
-    letter-spacing: 0.15em;
-    font-weight: 600;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px currentColor;
+.value-macro {
+    font-family: 'Courier New', monospace; /* Fuente numérica técnica */
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.value-midi {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.divider-vertical {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+/* --- BLOQUE DE ECUACIÓN --- */
+.equation-track {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;
+}
+
+.equation-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-width: 20px;
+}
+
+.eq-char {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.eq-val {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 2px;
+    font-family: monospace;
+}
+
+.eq-plus {
+    position: absolute;
+    right: -8px;
+    top: 2px;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.1);
+}
+
+/* Animación de entrada */
+.fade-in {
+    animation: fadeInTotal 0.5s ease-out forwards;
+}
+
+@keyframes fadeInTotal {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.frequency-cluster {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.cluster-label {
+    font-size: 0.5rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+.cluster-row {
+    display: flex;
+    gap: 16px;
 }

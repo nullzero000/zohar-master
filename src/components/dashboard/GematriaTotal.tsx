@@ -1,74 +1,90 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useGematriaStore } from '@/stores/gematriaStore';
-import { getSemanticsFromRGB } from '@/utils/spectralEngine'; // Asegúrate de tener esta util o usa un fallback
-import '@/styles/GematriaTotal.css'; // Usa el CSS que subiste (asegúrate de moverlo a src/styles)
+import { getHebrewColor, getHebrewValue, isOntologicalBlack, getRecursiveExpansion } from '@/lib/gematriaUtils';
+import '@/styles/GematriaTotal.css';
 
 export const GematriaTotal = () => {
-  const { total, reduced, analysis } = useGematriaStore();
-  
-  // Fallback seguro si no hay análisis aún
-  const mixedColor = analysis?.mixedColor || 'rgb(212, 175, 55)';
-  const [semanticColor, setSemanticColor] = useState('Vibración Latente');
-  
-  // Extraer valores RGB para CSS dinámico
-  const rgbValues = mixedColor.match(/\d+/g);
-  const colorBase = rgbValues ? rgbValues.join(',') : '212, 175, 55';
+  const { inputText, school, useSofitMode, expansionLevel } = useGematriaStore();
 
-  useEffect(() => {
-    if (rgbValues && rgbValues.length === 3) {
-        // Si no tienes spectralEngine, puedes comentar esto o crear la función
-        // const name = getSemanticsFromRGB(parseInt(rgbValues[0]), parseInt(rgbValues[1]), parseInt(rgbValues[2]));
-        // setSemanticColor(name);
-        setSemanticColor("Resonancia Activa"); // Placeholder temporal
+  if (!inputText) return null;
+
+  // 1. TEXTO ACTIVO
+  const activeText = getRecursiveExpansion(inputText, expansionLevel);
+
+  // 2. VALORES
+  const activeTotal = activeText.split('').reduce((acc, char) => acc + getHebrewValue(char, useSofitMode), 0);
+  const activeReduced = (activeTotal - 1) % 9 + 1;
+
+  // 3. LÓGICA DE FRECUENCIA (DISTINCT COUNT) PARA VISUALIZACIÓN COMPACTA
+  const renderEquation = () => {
+    // Si es corto, mostramos la ecuación completa
+    if (activeText.length <= 20) {
+        return activeText.split('').map((char, index) => renderCharNode(char, index, false));
     }
-  }, [mixedColor]);
 
-  if (total === 0) return null;
+    // Si es largo (Expansiones altas), calculamos el TOP 5
+    const frequencyMap: Record<string, number> = {};
+    activeText.split('').forEach(char => {
+        frequencyMap[char] = (frequencyMap[char] || 0) + 1;
+    });
+
+    // Ordenamos por frecuencia descendente
+    const top5 = Object.entries(frequencyMap)
+        .sort(([, countA], [, countB]) => countB - countA)
+        .slice(0, 5);
+
+    return (
+        <div className="frequency-cluster">
+            <span className="cluster-label">DOMINANT FREQUENCIES (TOP 5 / {activeText.length} CHARS)</span>
+            <div className="cluster-row">
+                {top5.map(([char, count], index) => renderCharNode(char, index, true, count))}
+            </div>
+        </div>
+    );
+  };
+
+  // Helper para renderizar nodo
+  const renderCharNode = (char: string, index: number, isCluster: boolean, count?: number) => {
+    const val = getHebrewValue(char, useSofitMode);
+    const color = getHebrewColor(char, school);
+    const isBlack = isOntologicalBlack(color);
+
+    return (
+        <div key={`${char}-${index}`} className="equation-node">
+            <span 
+                className="eq-char" 
+                style={{ 
+                    color: color,
+                    textShadow: isBlack ? '0 0 4px rgba(255,255,255,0.6)' : `0 0 8px ${color}`,
+                    fontSize: isCluster ? '1.5rem' : '1.2rem'
+                }}
+            >
+                {char}
+            </span>
+            {/* Si es cluster mostramos el conteo, si no, el valor */}
+            <span className="eq-val">{isCluster ? `x${count}` : val}</span>
+            {!isCluster && index < activeText.length - 1 && <span className="eq-plus">+</span>}
+        </div>
+    );
+  };
 
   return (
-    <div className="core-wrapper">
-      <style>{`
-        @keyframes deepBreathe {
-            0% { 
-                box-shadow: inset 0 0 20px rgba(${colorBase}, 0.2), 0 0 40px rgba(${colorBase}, 0.3);
-                transform: scale(1); border-color: rgba(255,255,255,0.1);
-            }
-            50% { 
-                box-shadow: inset 0 0 50px rgba(${colorBase}, 0.4), 0 0 80px rgba(${colorBase}, 0.5), 0 0 150px rgba(${colorBase}, 0.3);
-                transform: scale(1.03); border-color: rgba(${colorBase}, 0.5);
-            }
-            100% { 
-                box-shadow: inset 0 0 20px rgba(${colorBase}, 0.2), 0 0 40px rgba(${colorBase}, 0.3);
-                transform: scale(1); border-color: rgba(255,255,255,0.1);
-            }
-        }
-        .living-orb { animation: deepBreathe 6s infinite ease-in-out; }
-        .orb-value, .essence-value { text-shadow: 0 0 30px rgba(${colorBase}, 0.8); }
-        .connection-line { background: linear-gradient(to bottom, rgba(${colorBase}, 0), rgba(${colorBase}, 1), rgba(${colorBase}, 0)); }
-      `}</style>
-
-      {/* 1. NÚCLEO */}
-      <div className="living-orb">
-          <span className="orb-value">{total}</span>
-          <span className="orb-label">GEMATRÍA</span>
+    <div className="total-engine-container fade-in">
+      <div className="total-display-wrapper">
+        <div className="main-value-group">
+            <span className="label-micro">GEMATRÍA (LVL {expansionLevel})</span>
+            <span className="value-macro">{activeTotal}</span>
+        </div>
+        <div className="divider-vertical" />
+        <div className="sub-value-group">
+            <span className="label-micro">MISPAR KATAN</span>
+            <span className="value-midi">{activeReduced === 0 ? 0 : activeReduced}</span>
+        </div>
       </div>
 
-      {/* 2. CONEXIÓN */}
-      <div className="connection-line" />
-
-      {/* 3. REDUCCIÓN */}
-      <div className="essence-value" style={{ color: mixedColor }}>
-          {reduced}
-      </div>
-
-      {/* 4. IDENTIDAD */}
-      <div className="semantic-block">
-          <span className="semantic-label">FRECUENCIA DOMINANTE</span>
-          <span className="semantic-value" style={{ color: mixedColor }}>
-            {semanticColor}
-          </span>
+      <div className="equation-track">
+        {renderEquation()}
       </div>
     </div>
   );

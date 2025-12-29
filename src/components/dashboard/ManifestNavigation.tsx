@@ -1,33 +1,52 @@
 'use client';
 
 import { useGematriaStore } from '@/stores/gematriaStore';
+import '@/styles/ManifestNavigation.css';
+
+const LEVELS = [
+  { id: 0, label: 'NEFESH', sub: 'BASE' },
+  { id: 1, label: 'RUACH', sub: 'EXP. 1' },
+  { id: 2, label: 'NESHAMA', sub: 'EXP. 2' },
+  { id: 3, label: 'CHAYA', sub: 'EXP. 3' },
+  { id: 4, label: 'YECHIDA', sub: 'EXP. 4' },
+  { id: 5, label: 'ATZILUT', sub: 'FINAL' },
+];
 
 export const ManifestNavigation = () => {
-  const { manifestView, setManifestView } = useGematriaStore();
-
-  const navItems = [
-    { id: 'dossier', label: 'DOSSIER TÉCNICO' },
-    { id: 'tree', label: 'ÁRBOL DE VIDA' },
-    { id: 'vector', label: 'DATA VECTORIAL' }
-  ];
+  const { expansionLevel, setExpansionLevel } = useGematriaStore();
 
   return (
-    /* Z-Index alto y pointer-events-auto para asegurar que sean clickeables */
-    <nav className="flex items-center gap-2 p-1 bg-black/80 backdrop-blur-md rounded-full border border-white/20 shadow-2xl pointer-events-auto z-[1001]">
-      {navItems.map((item) => (
-        <button
-          key={item.id}
-          onClick={() => setManifestView(item.id as any)}
-          className={`
-            relative px-6 py-2 rounded-full text-[10px] font-bold tracking-[0.15em] transition-all duration-300
-            ${manifestView === item.id 
-              ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]' 
-              : 'text-white/40 hover:text-white hover:bg-white/10'}
-          `}
-        >
-          {item.label}
-        </button>
-      ))}
+    <nav className="manifest-nav-container">
+      <div className="nav-track">
+        {LEVELS.map((level) => {
+          const isActive = expansionLevel === level.id;
+          const isPast = expansionLevel > level.id;
+
+          return (
+            <button
+              key={level.id}
+              onClick={() => setExpansionLevel(level.id)}
+              className={`nav-node ${isActive ? 'active' : ''} ${isPast ? 'past' : ''}`}
+            >
+              <div className="node-indicator">
+                <div className="node-core" />
+              </div>
+              <div className="node-labels">
+                <span className="label-main">{level.label}</span>
+                <span className="label-sub">{level.sub}</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      
+      {/* Línea conectora visual */}
+      <div className="nav-line">
+        <div 
+            className="nav-line-fill" 
+            style={{ width: `${(expansionLevel / 5) * 100}%` }} 
+        />
+      </div>
     </nav>
   );
 };

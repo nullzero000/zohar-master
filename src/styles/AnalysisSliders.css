@@ -1,0 +1,136 @@
+/* src/styles/AnalysisSliders.css */
+
+.analysis-panel {
+    display: flex; /* Flex en lugar de Grid para mejor control vertical */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    padding: 5px 15px;
+}
+
+/* SLIDERS (Izquierda) */
+.sliders-section {
+    flex: 1.4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; /* Distribución vertical */
+    height: 100%;
+}
+
+.slider-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+}
+
+.slider-track {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    position: relative;
+    width: 100%;
+}
+
+.dual-track {
+    background: linear-gradient(to right, #000 0%, #333 50%, #fff 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.slider-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.slider-fill.biological { background: #4cd137; box-shadow: 0 0 5px rgba(76, 209, 55, 0.4); }
+.slider-fill.torah { background: #fbc531; box-shadow: 0 0 5px rgba(251, 197, 49, 0.4); }
+
+.slider-thumb {
+    width: 10px; height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(255,255,255,0.8);
+    transition: left 1s ease;
+}
+
+/* CRISTAL (Derecha) */
+.crystal-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly; /* Distribución vertical */
+    border-left: 1px solid rgba(255,255,255,0.1);
+    padding-left: 20px;
+    height: 90%; /* Un poco de margen */
+}
+
+.crystal-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    /* Permitir que el cristal crezca o se encoja */
+    flex: 1; 
+    justify-content: center;
+}
+
+.crystal-core {
+    /* Tamaño dinámico usando viewport units min, o clamp */
+    width: 8vh; 
+    height: 8vh;
+    min-width: 40px; min-height: 40px;
+    max-width: 80px; max-height: 80px;
+    border-radius: 50%;
+    transition: all 0.8s ease;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.crystal-label { font-family: monospace; font-size: 0.45rem; text-align: center; color: rgba(255,255,255,0.4); }
+
+.location-display { text-align: center; }
+.loc-label { display: block; font-size: 0.5rem; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+.loc-value { font-size: 0.7rem; font-weight: bold; letter-spacing: 0.1em; color: #fff; }
+
+.torah-word-display {
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    width: 100%;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 600px) {
+    .analysis-panel {
+        flex-direction: column-reverse; /* Stack vertical */
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .sliders-section {
+        flex: 1;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .crystal-section {
+        flex: 0 0 auto; /* Altura auto */
+        flex-direction: row; /* Horizontal */
+        width: 100%;
+        border-left: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-left: 0;
+        padding-bottom: 10px;
+        height: auto;
+    }
+    
+    .crystal-core { width: 50px; height: 50px; }
+}

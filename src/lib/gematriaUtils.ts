@@ -131,3 +131,68 @@ export const isOntologicalBlack = (colorString: string): boolean => {
 
   return false;
 };
+
+// src/lib/gematriaUtils.ts
+// ... imports existentes
+
+/**
+ * Calcula el "Promedio Espectral" (Color Cristal) de una palabra.
+ * Suma los vectores RGB de cada letra (usando la tabla Akashica) y promedia.
+ */
+export const calculateCrystalRGB = (text: string): string => {
+  if (!text) return 'rgba(255, 255, 255, 0.1)';
+
+  let rTotal = 0, gTotal = 0, bTotal = 0;
+  let count = 0;
+
+  text.split('').forEach(char => {
+    // Forzamos modo 'akashic' para obtener los colores físicos/vibrantes
+    const colorStr = getHebrewColor(char, 'akashic'); 
+    
+    // Extraer números del string "rgb(r, g, b)"
+    const match = colorStr.match(/\d+/g);
+    if (match && match.length === 3) {
+      rTotal += parseInt(match[0]);
+      gTotal += parseInt(match[1]);
+      bTotal += parseInt(match[2]);
+      count++;
+    }
+  });
+
+  if (count === 0) return 'rgba(255, 255, 255, 0.1)';
+
+  // Promedio
+  const r = Math.round(rTotal / count);
+  const g = Math.round(gTotal / count);
+  const b = Math.round(bTotal / count);
+
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
+// src/lib/gematriaUtils.ts
+// ... imports existentes (MANTENER LOS ANTERIORES)
+
+// [NUEVO] Motor de Expansión Recursiva (Miluy sobre Miluy)
+export const getRecursiveExpansion = (text: string, level: number): string => {
+  // Nivel 0 (Nefesh) = Texto Base
+  if (level <= 0 || !text) return text;
+
+  let currentText = text;
+
+  // Iteramos según el nivel (ej. Nivel 2 hace el proceso 2 veces)
+  for (let i = 0; i < level; i++) {
+    currentText = currentText
+      .split('')
+      .map((char) => {
+        // Obtenemos el array de expansión (ej. 'א' -> ['א','ל','ף'])
+        const expansion = getMiluyExpansion(char);
+        // Si no hay expansión, devolvemos la letra original
+        return expansion.length > 0 ? expansion.join('') : char;
+      })
+      .join(''); // Unimos todo para formar la nueva cadena expandida
+  }
+
+  return currentText;
+};
+
+// ... resto del archivo (MANTENER TODO IGUAL)
