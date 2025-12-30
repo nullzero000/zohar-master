@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useGematriaStore } from '@/stores/gematriaStore';
 import { useCosmicEngine } from '@/hooks/useCosmicEngine';
 import { getRecursiveExpansion } from '@/lib/gematriaUtils';
@@ -8,105 +9,79 @@ import '@/styles/VectorDataView.css';
 export const VectorDataView = () => {
   const { inputText, expansionLevel } = useGematriaStore();
   
-  // Motor Cósmico
-  const safeText = inputText || '';
-  const activeText = getRecursiveExpansion(safeText, expansionLevel);
+  // 1. Procesamiento de Texto
+  const activeText = useMemo(() => {
+    return getRecursiveExpansion(inputText || '', expansionLevel);
+  }, [inputText, expansionLevel]);
+
   const cosmos = useCosmicEngine(activeText);
 
-  if (!inputText) {
-    return (
-        <div className="vector-container" style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{ opacity: 0.5, letterSpacing: '0.2em' }}>WAITING FOR VECTOR SIGNAL...</span>
-        </div>
-    );
-  }
+  if (!inputText) return null;
 
-  // Calculamos rotación del radar basada en entropía (caos = más rápido/loco)
-  const rotationSpeed = cosmos.entropyLevel > 0 ? (100 / cosmos.entropyLevel) + 's' : '4s';
-  const blipAngle = (activeText.length * 13) % 360; // Posición "aleatoria" determinista
-  const blipRadius = 30 + (cosmos.stabilityIndex / 2); // Distancia del centro
+  // 2. CÁLCULO DE RADAR CORREGIDO (Clamped)
+  const blipAngle = (activeText.length * 137.5) % 360; 
+  // Forzamos que el radio nunca sea mayor a 45 para que no toque el borde (48)
+  const blipRadius = Math.min(45, 10 + (cosmos.stabilityIndex / 3)); 
+  
+  // Posición Cartesiana centrada en 50,50
+  const blipX = 50 + (blipRadius * Math.cos(blipAngle * Math.PI / 180));
+  const blipY = 50 + (blipRadius * Math.sin(blipAngle * Math.PI / 180));
 
-  // Convertimos polar a cartesiano para el puntito (blip)
-  const blipX = 50 + (blipRadius / 2) * Math.cos(blipAngle * Math.PI / 180);
-  const blipY = 50 + (blipRadius / 2) * Math.sin(blipAngle * Math.PI / 180);
+  const blipColor = cosmos.stabilityIndex > 70 ? '#4cd137' : '#e84118';
 
   return (
     <div className="vector-container fade-in-panel">
       
-      {/* HEADER */}
       <div className="vector-header">
         <span className="vector-title">VECTOR FIELD // LVL {expansionLevel}</span>
         <span className="vector-id">ID: {activeText.length}-VEC</span>
       </div>
 
       <div className="vector-grid">
-        
-        {/* IZQUIERDA: RADAR SCOPE */}
         <div className="vector-scope-section">
             <svg viewBox="0 0 100 100" className="radar-svg">
-                {/* Grilla Radar */}
-                <circle cx="50" cy="50" r="48" className="radar-circle" strokeOpacity="0.5" />
-                <circle cx="50" cy="50" r="35" className="radar-circle" strokeOpacity="0.3" />
-                <circle cx="50" cy="50" r="20" className="radar-circle" strokeOpacity="0.1" />
-                <line x1="50" y1="2" x2="50" y2="98" className="radar-axis" />
-                <line x1="2" y1="50" x2="98" y2="50" className="radar-axis" />
+                <circle cx="50" cy="50" r="48" className="radar-circle" />
+                <circle cx="50" cy="50" r="30" className="radar-circle dashed" />
+                <line x1="50" y1="4" x2="50" y2="96" className="radar-axis" />
+                <line x1="4" y1="50" x2="96" y2="50" className="radar-axis" />
                 
-                {/* Barrido (Scanner) */}
-                <line x1="50" y1="50" x2="50" y2="2" stroke="url(#radar-grad)" strokeWidth="2" className="radar-sweep" style={{ animationDuration: rotationSpeed }} />
+                <line 
+                    x1="50" y1="50" x2="50" y2="2" 
+                    className="radar-sweep" 
+                    style={{ animationDuration: '4s' }} 
+                />
                 
-                {/* Blip (El "Objeto" detectado) */}
-                <circle cx={blipX} cy={blipY} r="3" className="radar-blip" fill={cosmos.entropyLevel > 50 ? '#e84118' : '#4cd137'} />
-
-                <defs>
-                    <linearGradient id="radar-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="rgba(76, 209, 55, 0)" />
-                        <stop offset="100%" stopColor="rgba(76, 209, 55, 0.8)" />
-                    </linearGradient>
-                </defs>
+                {/* BLIP CON COORDENADAS SEGURAS */}
+                <circle cx={blipX} cy={blipY} r="3" fill={blipColor} className="radar-blip" />
             </svg>
         </div>
 
-        {/* DERECHA: DATOS DUROS */}
         <div className="vector-metrics-section">
-            
-            {/* MAGNITUD */}
-            <div className="v-metric-card">
-                <span className="v-label">MAGNITUDE (LENGTH)</span>
-                <span className="v-value val-vector">{activeText.length} <span style={{fontSize:'0.6rem'}}>UNITS</span></span>
+            <div className="v-metric-card" style={{ borderLeftColor: '#00a8ff' }}>
+                <span className="v-label">MAGNITUDE</span>
+                <span className="v-value val-vector">{activeText.length} <span className="v-unit">UNITS</span></span>
             </div>
 
-            {/* ESTABILIDAD */}
-            <div className="v-metric-card">
-                <span className="v-label">COHERENCE STABILITY</span>
-                <span className={`v-value ${cosmos.stabilityIndex > 80 ? 'val-stable' : 'val-unstable'}`}>
-                    {cosmos.stabilityIndex.toFixed(1)}%
-                </span>
-                <div style={{ width: '100%', height: '2px', background: '#333', marginTop: '5px' }}>
-                    <div style={{ width: `${cosmos.stabilityIndex}%`, height: '100%', background: cosmos.stabilityIndex > 80 ? '#4cd137' : '#e84118' }} />
+            <div className="v-metric-card" style={{ borderLeftColor: blipColor }}>
+                <div className="v-row-between">
+                    <span className="v-label">COHERENCE</span>
+                    <span className="v-value-small">{cosmos.stabilityIndex.toFixed(1)}%</span>
+                </div>
+                <div className="v-bar-bg">
+                    <div className="v-bar-fill" style={{ width: `${cosmos.stabilityIndex}%`, background: blipColor }} />
                 </div>
             </div>
 
-            {/* LUMINOSIDAD */}
-            <div className="v-metric-card">
-                <span className="v-label">LUMINOSITY</span>
-                <span className="v-value val-luminous">{cosmos.luminosity.toFixed(1)}%</span>
-            </div>
-
-            {/* FUERZA DOMINANTE */}
-            <div className="v-metric-card" style={{ borderLeftColor: '#00a8ff' }}>
-                <span className="v-label">DOMINANT VECTOR</span>
+            <div className="v-metric-card" style={{ borderLeftColor: '#fff' }}>
+                <span className="v-label">DOMINANT FORCE</span>
                 <span className="v-value" style={{ color: '#fff' }}>{cosmos.dominantForce}</span>
             </div>
-
         </div>
-
       </div>
 
-      {/* FOOTER: RAW HASH */}
       <div className="vector-footer">
-          RAW: {activeText}
+          RAW: {activeText.substring(0, 100)}...
       </div>
-
     </div>
   );
 };

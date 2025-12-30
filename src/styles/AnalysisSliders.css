@@ -1,14 +1,12 @@
 /* src/styles/AnalysisSliders.css */
 
 .analysis-panel {
-    display: flex; /* Flex en lugar de Grid para mejor control vertical */
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
     width: 100%;
-    height: 100%;
-    padding: 5px 15px;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; /* Elimina el scroll horizontal accidental */
 }
 
 /* SLIDERS (Izquierda) */
@@ -63,14 +61,12 @@
 
 /* CRISTAL (Derecha) */
 .crystal-section {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly; /* Distribución vertical */
-    border-left: 1px solid rgba(255,255,255,0.1);
-    padding-left: 20px;
-    height: 90%; /* Un poco de margen */
+    justify-content: center;
+    width: 100%;
+    flex: 1;
 }
 
 .crystal-display {
@@ -94,7 +90,12 @@
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-.crystal-label { font-family: monospace; font-size: 0.45rem; text-align: center; color: rgba(255,255,255,0.4); }
+.crystal-label {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    pointer-events: none;
+}
 
 .location-display { text-align: center; }
 .loc-label { display: block; font-size: 0.5rem; color: rgba(255,255,255,0.4); margin-bottom: 2px; }

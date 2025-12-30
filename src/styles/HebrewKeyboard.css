@@ -1,151 +1,120 @@
 /* src/styles/HebrewKeyboard.css */
 
-/* --- EL MOTOR (CONTENEDOR) --- */
-.keyboard-engine {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 24px;
-  /* Fondo sutil de geometría sagrada (opcional) */
-  background: radial-gradient(circle at center, rgba(20,20,30,0.5) 0%, transparent 70%);
+.hebrew-keyboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px 0;
+    width: 100%;
+    align-items: center;
+    perspective: 1200px; /* Profundidad 3D */
+    z-index: 50;
 }
 
-.engine-row {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  perspective: 1000px; /* Profundidad 3D */
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px; 
+    flex-direction: row-reverse; /* RTL Lógico */
+    width: 100%;
 }
 
-/* --- NODO BASE (LA LETRA) --- */
-.key-node {
-  position: relative;
-  border: none;
-  outline: none;
-  background: rgba(10, 10, 12, 0.6);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  
-  /* Variables CSS dinámicas */
-  color: var(--letter-color);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.03);
+/* --- ESTILO SAVEPOINT 8:16 (OBSIDIANA PURA) --- */
+.keyboard-key {
+    position: relative;
+    
+    /* DESKTOP */
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    
+    /* MATERIAL: El gradiente exacto que daba volumen */
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), rgba(10, 10, 12, 1) 60%);
+    backdrop-filter: blur(12px);
+    
+    /* BORDES Y RELIEVE */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        inset 0 0 15px rgba(0,0,0,1),         /* Profundidad interna */
+        0 4px 10px rgba(0,0,0,0.6),           /* Sombra caída */
+        0 0 0 1px rgba(255,255,255,0.05);     /* Aro de luz exterior sutil */
+    
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    
+    padding: 0; margin: 0;
 }
 
-.char-glyph {
-  font-family: 'Times New Roman', serif;
-  font-weight: 700;
-  z-index: 2;
-  position: relative;
-  text-shadow: 0 0 10px var(--glow-color);
+/* Brillo Especular (El reflejo del cristal) */
+.keyboard-key::before {
+    content: '';
+    position: absolute;
+    top: 10%; left: 15%;
+    width: 30%; height: 15%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    filter: blur(2px);
+    transform: rotate(-45deg);
 }
 
-/* =========================================================
-   JERARQUÍA 1: LAS MADRES (Alef, Mem, Shin)
-   "Cosmic Regulators, Anchoring Axes"
-   ========================================================= */
-.key-node.type-mother {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%; /* Esferas perfectas */
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), rgba(0,0,0,0.9));
-  z-index: 10; /* Dominancia visual */
+/* TIPOGRAFÍA CON CONTORNO DE LUZ */
+.key-char {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    z-index: 2;
+    color: var(--key-color);
+    
+    /* Glow restaurado */
+    text-shadow: 
+        0 0 10px var(--key-color),
+        0 2px 2px rgba(0,0,0,0.8); /* Sombra dura para legibilidad */
 }
 
-.key-node.type-mother .char-glyph {
-  font-size: 2.2rem;
-  filter: drop-shadow(0 0 8px var(--glow-color));
+.key-val {
+    position: absolute; bottom: 6px;
+    font-family: monospace; font-size: 0.55rem;
+    color: rgba(255,255,255,0.5);
+    z-index: 2;
+    letter-spacing: 0.05em;
 }
 
-/* Órbita lenta alrededor de las madres */
-.orbit-mother {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  animation: rotateMother 20s linear infinite;
+/* INTERACCIÓN: Se ilumina y flota */
+.keyboard-key:hover {
+    transform: translateY(-4px) scale(1.1);
+    background: radial-gradient(circle at 30% 30%, rgba(50, 50, 60, 1), #000 70%);
+    border-color: var(--key-color);
+    
+    box-shadow: 
+        0 0 20px var(--key-color), 
+        inset 0 0 10px var(--key-color);
+    z-index: 100;
 }
 
-@keyframes rotateMother { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.keyboard-key:active { transform: scale(0.95); }
 
-.key-node.type-mother:hover {
-  transform: scale(1.1);
-  border-color: var(--letter-color);
-  box-shadow: 0 0 30px var(--glow-color);
-}
+/* === MOBILE FIX: MATEMÁTICA ELÁSTICA === */
+@media (max-width: 600px) {
+    .hebrew-keyboard-container { gap: 6px; width: 100vw; }
+    
+    .keyboard-row {
+        justify-content: space-evenly; 
+        gap: 0; 
+        padding: 0 2px;
+        width: 100%;
+    }
 
-/* =========================================================
-   JERARQUÍA 2: LAS DOBLES (Bet, Gimel, Dalet...)
-   "Forces of Duality, Visibly Tense"
-   ========================================================= */
-.key-node.type-double {
-  width: 54px;
-  height: 54px;
-  border-radius: 12px; /* Cuadrado suavizado (Estructura) */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
+    .keyboard-key {
+        /* Tamaño elástico para que quepan las 9 */
+        width: 9.5vw;
+        height: 9.5vw; 
+        
+        max-width: 44px; max-height: 44px;
+        min-width: 32px; min-height: 32px;
+    }
 
-.key-node.type-double .char-glyph {
-  font-size: 1.8rem;
-}
-
-/* Línea de tensión mecánica */
-.tension-line {
-  position: absolute;
-  top: 0; bottom: 0; left: 50%;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--glow-color), transparent);
-  opacity: 0.3;
-  transform: scaleY(0);
-  transition: transform 0.3s;
-}
-
-.key-node.type-double:hover .tension-line {
-  transform: scaleY(1);
-}
-
-.key-node.type-double:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-/* =========================================================
-   JERARQUÍA 3: LAS SIMPLES (He, Vav, Zayin...)
-   "Orbital Movement, Cycles"
-   ========================================================= */
-.key-node.type-simple {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.key-node.type-simple .char-glyph {
-  font-size: 1.4rem;
-  opacity: 0.8;
-  transition: opacity 0.3s;
-}
-
-.key-node.type-simple:hover {
-  border-color: var(--letter-color);
-  background: rgba(var(--letter-color), 0.1);
-}
-
-.key-node.type-simple:hover .char-glyph {
-  opacity: 1;
-  text-shadow: 0 0 15px var(--glow-color);
-}
-
-/* --- RESPUESTA HÁPTICA VISUAL --- */
-.key-node:active {
-  transform: scale(0.92);
-  filter: brightness(1.5);
+    .key-char { font-size: 1.3rem; }
+    .key-val { font-size: 0.45rem; bottom: 3px; }
 }

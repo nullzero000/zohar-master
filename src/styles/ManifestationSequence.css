@@ -1,0 +1,244 @@
+/* src/styles/ManifestationSequence.css */
+
+.manifestation-sequence-container {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+    background-color: #000; 
+    z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden; 
+    pointer-events: all;
+    isolation: isolate;
+}
+
+/* === TEXTO (Letras Hebreas) === */
+.seq-word-container {
+    position: relative; z-index: 50;
+    display: flex; flex-direction: row-reverse; gap: 15px; 
+    align-items: center; justify-content: center;
+    filter: drop-shadow(0 0 15px rgba(0,0,0,1)); 
+    transform: translateZ(0);
+}
+
+.seq-char {
+    font-family: 'Times New Roman', serif; font-size: 6rem; font-weight: 700; line-height: 1;
+    color: var(--char-color); text-shadow: 0 0 20px var(--char-glow);
+    animation: stableBreath 6s ease-in-out infinite; animation-delay: var(--delay);
+    will-change: transform; 
+}
+
+/* === VÓRTICE (Contenedor) === */
+.vortex-container {
+    position: absolute; inset: 0; z-index: 2;
+    transition: opacity 1.5s ease;
+    mix-blend-mode: screen; 
+    pointer-events: none;
+    transform: translateZ(0);
+    display: flex; align-items: center; justify-content: center;
+}
+
+.vortex-background {
+    position: absolute; inset: 0;
+    /* Fondo fuerte para evitar huecos negros */
+    background: radial-gradient(circle, var(--vortex-bg) 20%, #000 95%);
+    opacity: 1;
+}
+
+/* === MARCO DE FORMA (Cimática) === */
+.vortex-shape-mask {
+    position: relative;
+    width: 85vmin; height: 85vmin; 
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; justify-content: center;
+    /* Fondo de seguridad interno */
+    background: var(--vortex-bg); 
+}
+
+/* --- FORMAS --- */
+.vortex-shape-mask.shape-full {
+    width: 100vw; height: 100vh; /* Pantalla Completa */
+    clip-path: none;
+    border-radius: 0;
+}
+.vortex-shape-mask.shape-circle { clip-path: circle(50% at 50% 50%); }
+.vortex-shape-mask.shape-hexagon { clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%); }
+.vortex-shape-mask.shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.vortex-shape-mask.shape-flower { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+
+/* === MOTOR DE FLUJO (Líneas Finas) === */
+.vortex-flow-dual {
+    position: absolute;
+    top: 50%; left: 50%;
+    /* Tamaño gigante para cubrir rotaciones */
+    width: 150vmax; height: 150vmax; 
+    transform: translate(-50%, -50%);
+    animation: cymaticRotate 120s linear infinite;
+}
+
+.vortex-flow-dual::before,
+.vortex-flow-dual::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    
+    /* Textura */
+    background: repeating-radial-gradient(circle at center, var(--vortex-palette));
+    
+    /* Máscara de Líneas Finas */
+    mask-image: repeating-radial-gradient(circle at center, black 0px, black 1.5px, transparent 2px, transparent 6px);
+    -webkit-mask-image: repeating-radial-gradient(circle at center, black 0px, black 1.5px, transparent 2px, transparent 6px);
+    
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.vortex-flow-dual::before { animation-delay: 0s; }
+.vortex-flow-dual::after { animation-delay: -10s; } 
+
+/* ANIMACIONES (Ajustadas para no apagarse) */
+
+/* Modo Denso: Escala de 0.5 a 1.5 (Siempre lleno en el centro) */
+.vortex-flow-dual.dense::before, .vortex-flow-dual.dense::after {
+    animation: flowExpandDenseFixed 20s linear infinite;
+}
+@keyframes flowExpandDenseFixed {
+    0% { opacity: 0; transform: scale(0.5); } 
+    10% { opacity: 1; } 
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.5); } 
+}
+
+/* Modo Fluido */
+.vortex-flow-dual.smooth::before, .vortex-flow-dual.smooth::after {
+    animation: flowExpandSmooth 20s linear infinite;
+}
+@keyframes flowExpandSmooth {
+    0% { opacity: 0; transform: scale(0.4); }
+    50% { opacity: 1; } 
+    100% { opacity: 0; transform: scale(1.8); }
+}
+
+@keyframes cymaticRotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+/* Resto de estilos (Luz Divina, Botones) */
+.divine-source-wrapper { position: absolute; inset: 0; z-index: 1; pointer-events: none; transition: opacity 2s ease; transform: translateZ(0); }
+.source-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(255, 255, 255, 1) 5%, rgba(255, 240, 200, 0.9) 15%, rgba(255, 200, 50, 0.6) 35%, rgba(255, 100, 20, 0.2) 60%, transparent 80%); mix-blend-mode: hard-light; filter: blur(30px); animation: burningPulse 4s ease-in-out infinite alternate; }
+.source-rays { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 150vmax; height: 150vmax; background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 220, 100, 0.1) 20deg, transparent 40deg, rgba(255, 255, 255, 0.2) 60deg, transparent 90deg, rgba(255, 200, 50, 0.1) 120deg, transparent 150deg); mix-blend-mode: screen; animation: gloryRotate 80s linear infinite; }
+.source-particles { position: absolute; inset: 0; background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1.5px, transparent 1.5px); background-size: 50px 50px; z-index: 3; pointer-events: none; transition: opacity 1.5s ease; }
+.seq-controls { position: absolute; bottom: 50px; z-index: 1000; display: flex; flex-direction: column; gap: 20px; align-items: center; transform: translateZ(0); }
+.btn-action-divine { background: rgba(0,0,0,0.8); color: #fff; border: 1px solid rgba(255, 215, 0, 0.5); padding: 14px 40px; font-family: 'Times New Roman', serif; font-size: 0.9rem; letter-spacing: 0.15em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 10px rgba(0,0,0,1); }
+.btn-action-divine:hover { background: #fff; color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+.mode-toggles { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+.btn-toggle-mode { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.65rem; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.05em; backdrop-filter: blur(5px); }
+.btn-toggle-mode:hover { color: #fff; border-color: #fff; }
+.btn-toggle-mode.active { color: #000; background: #fff; border-color: #fff; box-shadow: 0 0 15px #fff; }
+
+@keyframes stableBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes burningPulse { 0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; } }
+@keyframes gloryRotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@media (max-width: 600px) { .seq-char { font-size: 4rem; } .source-core { width: 90vw; height: 90vw; } .mode-toggles { flex-direction: column; gap: 10px; } }
+
+/* --- INTERFERENCE FIELD --- */
+.interference-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    mix-blend-mode: screen; /* Clave para que las intersecciones brillen */
+}
+
+.interference-svg {
+    width: 90vmin;
+    height: 90vmin;
+    overflow: visible;
+}
+
+.interference-wave {
+    filter: url(#wave-glow);
+    vector-effect: non-scaling-stroke;
+    animation: rippleExpand 6s infinite cubic-bezier(0.2, 0.5, 0.4, 1);
+    opacity: 0;
+}
+
+.emitter-text {
+    font-family: 'Times New Roman', serif;
+    font-size: 3px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    opacity: 0.5;
+}
+
+@keyframes rippleExpand {
+    0% { r: 0; opacity: 0; stroke-width: 0.5; }
+    10% { opacity: 0.8; }
+    100% { r: 60; opacity: 0; stroke-width: 0.1; }
+}
+
+/* --- AGREGAR AL FINAL DE ManifestationSequence.css --- */
+
+
+
+.seq-controls-auto-hide {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 180px; 
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 40px;
+    /* Z-INDEX MÁXIMO */
+    z-index: 99999 !important; 
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    pointer-events: auto !important; /* IMPORTANTE */
+}
+
+.seq-controls-auto-hide:hover {
+    opacity: 1;
+}
+
+/* Indicador sutil para saber que hay algo ahí */
+.seq-controls-auto-hide::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    width: 30px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+/* --- CORRECCIÓN RESPONSIVE GEOMETRÍA (SACRED CANVAS) --- */
+.sacred-canvas {
+    position: relative;
+    /* Reducimos de 85vmin a 60vmin para evitar desbordamiento por el translateY */
+    width: 60vmin; 
+    height: 60vmin;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: globalRotation 120s linear infinite;
+    perspective: 1000px; 
+}
+
+/* Asegurar que los pétalos no se corten */
+.sacred-petal {
+    position: absolute;
+    width: 45%;
+    height: 85%;
+    border: 0.5px solid;
+    border-radius: 50%;
+    mix-blend-mode: screen; 
+    pointer-events: none;
+    transform-origin: center center;
+}
+
+/* El anillo externo como límite visual de seguridad */
+.ring-1 { 
+    width: 140%; 
+    height: 140%; 
+    opacity: 0.2; 
+    border: 0.3px solid rgba(255,255,255,0.5);
+}

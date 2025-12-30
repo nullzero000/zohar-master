@@ -1,107 +1,140 @@
 'use client';
 
-import { motion, Variants } from 'framer-motion';
+import { useState, useMemo } from 'react';
 import { useGematriaStore } from '@/stores/gematriaStore';
 import { getHebrewColor, isOntologicalBlack } from '@/lib/gematriaUtils';
+import '@/styles/ManifestationSequence.css';
+import { InterferenceField } from '@/components/visuals/InterferenceField';
+import { SacredGeometry } from '@/components/visuals/SacredGeometry';
 
 interface Props {
-  onComplete: () => void;
+    onComplete: () => void;
 }
 
+type VortexType = 'DENSE' | 'SMOOTH';
+type CymaticShape = 'FULL' | 'CIRCLE' | 'HEXAGON' | 'DIAMOND' | 'FLOWER';
+
 export const ManifestationSequence = ({ onComplete }: Props) => {
-  const { inputText, school } = useGematriaStore();
+    const { inputText, school } = useGematriaStore();
+    const chars = inputText.split('');
 
-  // FIX TYPESCRIPT: Definimos explícitamente el tipo Variants y usamos 'as const'
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 1.2, 
-      filter: 'blur(15px)', 
-      // 'easeInOut' debe ser constante para TS
-      transition: { duration: 1, ease: "easeInOut" as const } 
-    }
-  };
+    // ESTADOS INDEPENDIENTES: Permiten activar varias capas a la vez
+    const [showDivine, setShowDivine] = useState(false);
+    const [showVortex, setShowVortex] = useState(false);
+    const [showResonance, setShowResonance] = useState(false);
+    const [showSacred, setShowSacred] = useState(false);
 
-  const letterVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.5, y: 100 },
-    visible: { 
-      opacity: 1, scale: 1, y: 0,
-      // 'spring' debe ser constante
-      transition: { type: "spring" as const, stiffness: 80, damping: 12 }
-    }
-  };
+    const [vortexType, setVortexType] = useState<VortexType>('DENSE');
+    const [cymaticShape, setCymaticShape] = useState<CymaticShape>('FULL');
 
-  return (
-    <motion.div
-      className="manifestation-sequence-container"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      onClick={onComplete}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        display: 'flex', flexDirection: 'column', 
-        alignItems: 'center', justifyContent: 'center',
-        background: 'black', 
-        cursor: 'pointer', 
-        pointerEvents: 'auto' 
-      }}
-    >
-      {/* Contenedor de Letras */}
-      <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '2vw', flexWrap: 'wrap', justifyContent: 'center', padding: '20px' }}>
-        {inputText.split('').map((char, i) => {
-          const color = getHebrewColor(char, school);
-          const isBlack = isOntologicalBlack(color);
-
-          return (
-            <motion.span
-              key={i}
-              variants={letterVariants}
-              style={{
-                fontSize: 'min(18vw, 200px)', 
-                fontFamily: 'Times New Roman, serif',
-                fontWeight: 'bold',
-                lineHeight: 1,
-                color: color,
-                textShadow: isBlack 
-                    ? '0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(255,255,255,0.5)' 
-                    : `0 0 40px ${color}, 0 0 80px ${color}`,
-                display: 'inline-block',
-                animation: 'float 6s ease-in-out infinite'
-              }}
-            >
-              {char}
-            </motion.span>
-          );
-        })}
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.3 }}
-        transition={{ delay: 3, duration: 1 }}
-        style={{
-            position: 'absolute', bottom: '50px',
-            color: 'rgba(255,255,255,0.5)',
-            fontFamily: 'Courier New', fontSize: '0.7rem', letterSpacing: '0.2em',
-            textTransform: 'uppercase'
-        }}
-      >
-        [ CLICK TO ANALYZE ]
-      </motion.div>
-
-      <style jsx>{`
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+    const { vortexBg, paletteStr } = useMemo(() => {
+        if (chars.length === 0) return { vortexBg: '#000', paletteStr: '#fff, #000' };
+        const allColors = chars.map(c => getHebrewColor(c, school));
+        const counts: Record<string, number> = {};
+        let maxCount = 0;
+        let dominant = allColors[0];
+        for (const c of allColors) {
+            counts[c] = (counts[c] || 0) + 1;
+            if (counts[c] > maxCount) { maxCount = counts[c]; dominant = c; }
         }
-      `}</style>
-    </motion.div>
-  );
+        const bg = dominant.replace('rgb', 'rgba').replace(')', ', 0.5)');
+        let repeatedColors: string[] = [];
+        for (let i = 0; i < 5; i++) repeatedColors = [...repeatedColors, ...allColors];
+        repeatedColors.push(allColors[0]);
+
+        return { vortexBg: bg, paletteStr: repeatedColors.join(', ') };
+    }, [chars, school]);
+
+    const toggleShape = () => {
+        const shapes: CymaticShape[] = ['FULL', 'CIRCLE', 'HEXAGON', 'DIAMOND', 'FLOWER'];
+        const nextIndex = (shapes.indexOf(cymaticShape) + 1) % shapes.length;
+        setCymaticShape(shapes[nextIndex]);
+    };
+
+    if (!chars.length) return null;
+
+    return (
+        <div className="manifestation-sequence-container">
+            
+            {/* CAPA 1: LUZ DIVINA (Fondo Profundo) */}
+            <div className="divine-source-wrapper" style={{ opacity: showDivine ? 1 : 0 }}>
+                <div className="source-rays" />
+                <div className="source-core" />
+            </div>
+
+            {/* CAPA 2: VÓRTICE (Estructura de Color) */}
+            <div className="vortex-container" style={{ 
+                opacity: showVortex ? 0.7 : 0,
+                '--vortex-bg': vortexBg,
+                '--vortex-palette': paletteStr
+            } as React.CSSProperties}>
+                <div className="vortex-background" />
+                <div className={`vortex-shape-mask shape-${cymaticShape.toLowerCase()}`}>
+                    <div className={`vortex-flow-dual ${vortexType.toLowerCase()}`} />
+                </div>
+            </div>
+
+            {/* CAPA 3: RESONANCIA (Ondas) */}
+            {showResonance && <InterferenceField />}
+
+            {/* CAPA 4: GEOMETRÍA SAGRADA (Malla Superior) */}
+            {showSacred && <SacredGeometry />}
+
+            {/* PARTÍCULAS SUTILES */}
+            <div className="source-particles" style={{ opacity: showDivine ? 0.4 : 0 }} />
+
+            {/* LETRAS (Siempre al frente) */}
+            <div className="seq-word-container">
+                {chars.map((char, index) => {
+                    const color = getHebrewColor(char, school);
+                    const isBlack = isOntologicalBlack(color);
+                    const glowColor = isBlack ? 'rgba(255, 255, 255, 0.7)' : color;
+                    return (
+                        <span key={index} className="seq-char" style={{ 
+                            '--char-color': color,
+                            '--char-glow': glowColor,
+                            '--delay': `${index * 0.3}s`
+                        } as React.CSSProperties}>
+                            {char}
+                        </span>
+                    );
+                })}
+            </div>
+
+            {/* CONTROLES CON AUTO-HIDE */}
+            <div className="seq-controls-auto-hide">
+                <div className="seq-controls">
+                    <button onClick={onComplete} className="btn-action-divine">
+                        INICIAR ANÁLISIS
+                    </button>
+
+                    <div className="mode-toggles">
+                        <button onClick={() => setShowDivine(!showDivine)} className={`btn-toggle-mode ${showDivine ? 'active' : ''}`}>
+                            {showDivine ? '✦ LUZ' : '✧ LUZ'}
+                        </button>
+                        <button onClick={() => setShowVortex(!showVortex)} className={`btn-toggle-mode ${showVortex ? 'active' : ''}`}>
+                            ◎ VÓRTICE
+                        </button>
+                        <button onClick={() => setShowResonance(!showResonance)} className={`btn-toggle-mode ${showResonance ? 'active' : ''}`}>
+                            ֎ RESONANCIA
+                        </button>
+                        <button onClick={() => setShowSacred(!showSacred)} className={`btn-toggle-mode ${showSacred ? 'active' : ''}`}>
+                            ⌬ GEOMETRÍA
+                        </button>
+
+                        {showVortex && (
+                            <div className="vortex-sub-controls">
+                                <button onClick={() => setVortexType(vortexType === 'DENSE' ? 'SMOOTH' : 'DENSE')} className="btn-toggle-mode active">
+                                    {vortexType === 'DENSE' ? '↔ DENSO' : '↔ FLUIDO'}
+                                </button>
+                                <button onClick={toggleShape} className="btn-toggle-mode active">
+                                    ⬡ {cymaticShape}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };

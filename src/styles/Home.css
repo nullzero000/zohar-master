@@ -1,145 +1,53 @@
 /* src/styles/Home.css */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 .home-container {
-    position: relative;
-    width: 100%;
-    height: 100dvh;
-    overflow: hidden;
-    background-color: #000;
-    color: #fff;
+    position: relative; width: 100%; height: 100dvh;
+    overflow: hidden; background-color: #000; color: #fff;
     font-family: 'Times New Roman', serif;
 }
 
-/* CAPAS DE FONDO */
-.layer-background, .layer-particles, .layer-galaxy { 
-    position: absolute; inset: 0; z-index: 0; pointer-events: none; 
-}
-
-/* UI LAYER */
 .layer-ui {
-    position: relative; z-index: 50; width: 100%; height: 100%;
-    display: grid; grid-template-rows: auto 1fr auto; 
-    pointer-events: none; /* Deja pasar clicks al fondo */
-    padding: 1rem;
+    position: absolute; inset: 0; z-index: 50;
+    display: grid;
+    /* Grid de 3 filas para control total */
+    grid-template-rows: auto 1fr auto; 
+    pointer-events: none;
+    padding-top: env(safe-area-inset-top, 10px);
+    padding-bottom: env(safe-area-inset-bottom, 10px);
 }
 
-/* HEADER */
 .ui-header {
-    display: flex; flex-direction: column; align-items: center;
-    min-height: 50px; z-index: 60; gap: 0.5rem; pointer-events: none;
+    width: 100%; display: flex; justify-content: center;
+    padding: 5px; z-index: 60;
 }
 .ui-header > * { pointer-events: auto; }
 
-/* MAIN */
+/* MAIN CENTRADO */
 .ui-main {
-    position: relative; display: flex; align-items: center; justify-content: center;
-    width: 100%; z-index: 55; pointer-events: none;
+    position: relative; width: 100%;
+    display: flex; 
+    align-items: center; /* Centro Vertical */
+    justify-content: center; /* Centro Horizontal */
+    z-index: 55;
 }
-.input-container-wrapper { width: 100%; display: flex; justify-content: center; pointer-events: auto !important; }
-
-/* PANEL DE DATOS (Overlay) */
-.data-panel-wrapper {
-    position: absolute;
-    top: 50px; bottom: 80px; left: 10px; right: 10px; /* Márgenes pequeños */
-    display: flex; justify-content: center; align-items: center;
-    background: rgba(8, 8, 10, 0.98);
-    backdrop-filter: blur(20px);
-    z-index: 100; 
-    pointer-events: auto !important;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 0 60px rgba(0,0,0,1);
-    overflow: hidden; 
+.input-container-wrapper { 
+    width: 100%; display: flex; justify-content: center; 
+    pointer-events: auto !important; padding: 0 10px;
 }
 
-/* BOTÓN DE CIERRE (RETORNO) */
-.panel-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.6);
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 200; /* Encima de todo dentro del panel */
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.panel-close-btn:hover {
-    background: rgba(255, 69, 58, 0.2);
-    border-color: rgba(255, 69, 58, 0.5);
-    color: #ff453a;
-    transform: scale(1.1);
-}
-
-/* FOOTER */
 .ui-footer {
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    gap: 1rem; z-index: 60; padding-bottom: 2rem;
-    pointer-events: none; /* El contenedor del footer NO debe bloquear */
+    width: 100%; display: flex; flex-direction: column; align-items: center;
+    gap: 15px; z-index: 60; padding-bottom: 10px;
 }
+.keyboard-wrapper, .controls-wrapper { width: 100%; display: flex; justify-content: center; pointer-events: auto !important; z-index: 200; }
 
-/* TECLADO */
-.keyboard-wrapper {
-    width: 100%; display: flex; justify-content: center;
-    pointer-events: auto !important; /* El teclado SÍ debe recibir clicks */
-    z-index: 205; position: relative;
-}
-
-/* CONTROLES (El Botón Problemático) */
-.controls-wrapper {
-    display: flex; flex-direction: column; align-items: center; gap: 1rem;
-    pointer-events: auto !important; /* CRÍTICO: Reactivar clicks */
-    z-index: 200; 
-    position: relative;
-    isolation: isolate; /* Crea un nuevo contexto de apilamiento para evitar conflictos */
-}
-
-/* BOTÓN MANIFESTAR */
-.manifest-btn {
-    font-family: 'Times New Roman', serif; color: #fff;
-    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 16px 48px; border-radius: 2px;
-    text-transform: uppercase; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.2em;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    transition: all 0.2s;
-    position: relative; overflow: hidden;
-    
-    /* SEGURIDAD DE CLIC */
-    z-index: 999; 
-    pointer-events: auto !important;
-    touch-action: manipulation; /* Mejora la respuesta táctil en móviles */
-}
-.manifest-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.15); }
-
-/* MOBILE */
 @media (max-width: 600px) {
-    .home-container { padding: 0; }
-    .layer-ui { padding: 0; }
-    .data-panel-wrapper {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 60px;
-        border-radius: 0; border: none; background: #050505;
-        align-items: flex-start; padding-top: 10px;
-    }
-    .keyboard-wrapper { transform: scale(0.9); margin-bottom: -10px; }
-    .mobile-hidden { display: none !important; opacity: 0; pointer-events: none; }
-    
-    .mobile-nav-bar {
-        position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
-        background: #0a0a0c; border-top: 1px solid rgba(255,255,255,0.15);
-        display: flex; justify-content: space-evenly; align-items: center;
-        z-index: 9999; pointer-events: auto;
-    }
+    /* Ajustes Grid Móvil */
+    .layer-ui { grid-template-rows: auto 1fr auto; }
+    .ui-main { padding-bottom: 20px; }
 }
 
-.fade-transition { transition: all 0.5s; }
-.is-hidden { opacity: 0; pointer-events: none !important; visibility: hidden; }
-.is-visible { opacity: 1; pointer-events: auto; visibility: visible; }
+.data-panel-wrapper { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(8,8,10,0.95); backdrop-filter: blur(30px); z-index: 100; pointer-events: auto !important; display: flex; justify-content: center; align-items: center; padding-top: env(safe-area-inset-top); }
+.panel-close-btn { position: absolute; top: 15px; right: 20px; width: 32px; height: 32px; z-index: 200; background: rgba(255,255,255,0.1); border-radius: 50%; border: none; color: white; cursor: pointer; }
+.fade-transition { transition: opacity 0.5s ease; } .opacity-20 { opacity: 0.2; } .opacity-100 { opacity: 1; } .is-hidden { opacity: 0; pointer-events: none !important; } .is-visible { opacity: 1; pointer-events: auto; }

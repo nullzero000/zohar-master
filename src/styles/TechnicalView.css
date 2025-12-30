@@ -7,20 +7,20 @@
     flex-direction: column;
     align-items: center;
     overflow: hidden; 
-    padding-bottom: 5px; /* Pequeño respiro abajo */
+    padding-bottom: 5px;
 }
 
-/* HEADER */
+/* HEADER - (Tu diseño original intacto) */
 .tech-tabs-header {
-    flex-shrink: 0; /* No encoger nunca */
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 6px 16px; /* Más compacto */
+    padding: 6px 16px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 99px;
-    margin-bottom: 10px; /* Gap flexible */
+    margin-bottom: 10px;
     backdrop-filter: blur(5px);
     max-height: 40px;
 }
@@ -46,18 +46,173 @@
 
 /* ÁREA DE CONTENIDO */
 .tech-content-area {
-    flex: 1; /* Ocupa TODO el espacio restante verticalmente */
+    flex: 1;
     width: 100%;
-    position: relative;
+    position: relative; /* Indispensable para que lo de adentro se posicione bien */
     display: flex;
     justify-content: center;
-    overflow: hidden; /* Cero scroll, obligamos a los hijos a encajar */
-    min-height: 0; /* CRÍTICO: Permite a Flexbox encoger a los hijos si es necesario */
+    overflow: hidden; 
+    min-height: 0;
 }
 
 /* Wrapper interno */
 .tech-panel-wrapper {
     width: 100%;
-    height: 100%; /* Llenar al padre */
+    height: 100%;
     max-width: 700px;
+    /* Aseguramos que el contenido interno pueda scrollear si es necesario */
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- AGREGADO NECESARIO PARA FRAMER MOTION --- */
+/* Esto permite que las dos pantallas existan una sobre otra durante la animación */
+.tech-anim-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center; /* Mantiene tu centrado original */
+    padding: 0 10px; /* Un pequeño margen de seguridad lateral */
+}
+
+/* --- NAVEGACIÓN DE NIVELES (SOUL LEVELS) --- */
+/* src/styles/TechnicalView.css */
+
+/* ... (Bloques anteriores) ... */
+
+/* --- NAVEGACIÓN DE NIVELES (MANIFEST NAVIGATION) --- */
+/* src/styles/TechnicalView.css */
+
+/* ... (MANTENER CÓDIGO ANTERIOR DEL HEADER Y CONTENT AREA) ... */
+
+/* --- NAVEGACIÓN TIPO PROGRESS BAR (Tech Nav) --- */
+
+.tech-nav-container {
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+    padding: 15px 0 25px 0; /* Espacio para que no se corte el glow */
+    margin: 0 auto; /* Centrado */
+    
+    /* Scroll horizontal en móvil */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    /* Máscara de desvanecimiento en bordes */
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+.tech-nav-container::-webkit-scrollbar { display: none; }
+
+/* Pista de los nodos */
+.tech-nav-track {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2; /* Encima de la línea */
+    min-width: 100%; /* Asegura que ocupe al menos el ancho */
+}
+
+/* El Nodo Individual */
+.tech-nav-node {
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: all 0.4s ease;
+    padding: 0 10px;
+    position: relative;
+}
+
+/* Estados de Nodo */
+.tech-nav-node.active, 
+.tech-nav-node.past { 
+    opacity: 1; 
+}
+
+/* Indicador (El Rombo) */
+.tech-node-indicator {
+    width: 12px; 
+    height: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    transform: rotate(45deg);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: #000; /* Fondo negro para tapar la línea de atrás */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto rebote suave */
+    z-index: 2;
+}
+
+/* Estado Activo del Rombo */
+.tech-nav-node.active .tech-node-indicator {
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.6);
+    transform: rotate(45deg) scale(1.4);
+    background: #000;
+}
+
+/* Núcleo del Rombo (Puntito central) */
+.tech-node-core { 
+    width: 4px; 
+    height: 4px; 
+    background: #fff; 
+    opacity: 0; 
+    border-radius: 50%;
+}
+.tech-nav-node.active .tech-node-core, 
+.tech-nav-node.past .tech-node-core { 
+    opacity: 1; 
+}
+
+/* Textos */
+.tech-label-main { 
+    font-size: 0.6rem; 
+    font-weight: 700; 
+    letter-spacing: 0.15em; 
+    color: #fff; 
+    font-family: monospace;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+/* LÍNEA DE FONDO (Gris) */
+.tech-nav-line {
+    position: absolute; 
+    top: 22px; /* Ajuste fino para centrar con el rombo */
+    left: 20px; /* Margen para que no empiece en el borde absoluto */
+    right: 20px;
+    height: 1px; 
+    background: rgba(255,255,255,0.1); 
+    z-index: 1;
+}
+
+/* LÍNEA DE RELLENO (Progreso) */
+.tech-nav-line-fill {
+    height: 100%; 
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 10px rgba(255,255,255,0.5); 
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* RESPONSIVE MOBILE */
+@media (max-width: 600px) {
+    .tech-nav-track {
+        /* Forzamos que los items se separen más allá del ancho de pantalla */
+        width: 140%; 
+        padding: 0 10px;
+    }
+    
+    /* La línea debe crecer junto con el track en móvil */
+    .tech-nav-line {
+        width: 130%; 
+        left: 15px;
+    }
 }

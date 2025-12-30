@@ -1,0 +1,130 @@
+/* src/styles/UIControls.css */
+
+/* === CONTENEDOR HEADER (La Pila Vertical) === */
+.header-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px; /* Separación elegante entre escuelas y visuales */
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* === BARRA DE NAVEGACIÓN (Escuelas) === */
+.control-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centrado */
+    gap: 6px;
+    
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.3); /* Fondo muy sutil */
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+/* BOTONES DE ESCUELA (Estilo Pill Premium) */
+.school-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.4); /* Texto apagado */
+    
+    padding: 8px 16px;
+    border-radius: 20px;
+    
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem; 
+    font-weight: 700; 
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ESCUELA ACTIVA (El toque de color) */
+.school-btn.active {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-color: var(--school-color); /* Borde fino de color */
+    box-shadow: 0 0 15px var(--school-glow); /* Resplandor suave */
+    text-shadow: 0 0 5px var(--school-glow);
+}
+
+/* === SELECTOR VISUAL (Iconos debajo) === */
+.bg-selector-panel {
+    display: flex;
+    gap: 15px;
+    padding: 5px;
+}
+
+.bg-option {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%; /* Círculos perfectos */
+    color: rgba(255, 255, 255, 0.3);
+    
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bg-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.bg-option.active {
+    border-color: #d4af37;
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    transform: scale(1.1);
+}
+
+/* === BOTÓN MANIFESTAR (REDISEÑO TOTAL: "Tech Capsule") === */
+.manifest-trigger {
+    position: relative;
+    /* Fondo Negro Profundo */
+    background: #050505; 
+    color: #fff;
+    
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.25em; /* Tracking amplio premium */
+    text-transform: uppercase;
+    
+    /* Dimensiones controladas */
+    padding: 16px 0;
+    width: 240px; 
+    
+    /* Borde Fino High-Tech (Cian sutil) */
+    border: 1px solid rgba(100, 200, 255, 0.3); 
+    border-radius: 100px; /* Cápsula */
+    
+    cursor: pointer;
+    /* Sombra difusa */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    
+    display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease;
+    
+    /* Margen inferior seguro */
+    margin-bottom: env(safe-area-inset-bottom, 10px);
+}
+
+.manifest-trigger:hover {
+    border-color: rgba(100, 220, 255, 0.8); /* Se enciende al hover */
+    box-shadow: 0 0 25px rgba(100, 220, 255, 0.2);
+    text-shadow: 0 0 10px rgba(100, 220, 255, 0.5);
+    letter-spacing: 0.3em; /* Se expande */
+}
+
+.manifest-trigger:active {
+    transform: scale(0.96);
+    background: rgba(100, 220, 255, 0.1);
+}

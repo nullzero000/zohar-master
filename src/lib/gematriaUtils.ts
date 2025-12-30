@@ -103,3 +103,19 @@ export const calculateCrystalRGB = (text: string): string => {
   if (count === 0) return 'rgba(255, 255, 255, 0.1)';
   return `rgb(${Math.round(rTotal / count)}, ${Math.round(gTotal / count)}, ${Math.round(bTotal / count)})`;
 };
+
+// Lógica interna para la traducción de estados
+const getKabbalisticInsight = (stability: number, entropy: number, luminosity: number) => {
+  // Caso: Ego sin control (Mucha entropía, poca estabilidad)
+  if (entropy > 65 && stability < 40) {
+    return "ESTADO DE CONTRACCIÓN: El ego está fragmentando la intención. La sombra domina por falta de vasija (Kli). Se requiere silencio y restricción (Tzimtzum) para recuperar el centro.";
+  }
+  
+  // Caso: Luz Elevada (Mucha estabilidad y luminosidad)
+  if (luminosity > 70 && stability > 70) {
+    return "LUZ ELEVADA: La secuencia refleja un canal alineado. El Tikkun fluye sin resistencia del ego, permitiendo que la voluntad superior se manifieste con claridad.";
+  }
+
+  // Caso: Tikkun en proceso (Equilibrio)
+  return "PROCESO DE RECTIFICACIÓN: Equilibrio entre las fuerzas de expansión y restricción. La sombra sirve como límite necesario para que la luz no se disipe.";
+};

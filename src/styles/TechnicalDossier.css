@@ -5,84 +5,113 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 10px 20px;
-    overflow: hidden; /* Elimina el scroll down de Metrics */
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace; /* Fuente técnica consistente */
+    overflow-y: auto;
+    scrollbar-width: none;
 }
+.dossier-container::-webkit-scrollbar { display: none; }
 
-/* 1. HEADER */
-.dossier-header {
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 5px; height: 35px;
-}
-.dossier-title { font-size: 0.75rem; letter-spacing: 0.15em; font-weight: 700; color: rgba(255, 255, 255, 0.9); }
-.dossier-id { font-size: 0.6rem; color: rgba(255, 255, 255, 0.4); }
-
-/* 2. CUERPO (GRID INTERNO) */
 .dossier-grid {
-    flex: 1;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 20px;
-    min-height: 0;
-}
-
-.dossier-section.metrics {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px; /* Mayor respiro entre métricas */
+    flex: 1;
+}
+
+/* Espaciado para el componente de Gematría superior */
+.dossier-header-section {
+    margin-bottom: 15px;
+    flex-shrink: 0;
 }
 
 .metric-row {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.dossier-section.structure { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
-.section-label { font-size: 0.6rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 8px; letter-spacing: 0.15em; text-transform: uppercase; }
+.metric-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem; /* Más micro-estética */
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.15em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
 
-.metric-row { width: 100%; margin-bottom: 4px; }
-.metric-info { display: flex; justify-content: space-between; font-size: 0.65rem; margin-bottom: 2px; color: rgba(255, 255, 255, 0.8); }
+.metric-info span:last-child {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
 .bar-track {
     width: 100%;
-    height: 4px; /* Más delgada, más elegante */
+    height: 4px; /* Barra delgada y elegante */
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 2px;
-    margin-top: 4px;
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
 }
 
 .bar-fill {
     height: 100%;
-    border-radius: 2px;
-    box-shadow: 0 0 10px currentColor; /* Brillo neón sutil */
+    transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.bar-fill.stability { background: #4cd137; } .bar-fill.entropy { background: #e84118; } .bar-fill.luminosity { background: #fbc531; }
+/* Colores actualizados con mayor intensidad */
+.bar-fill.stability { background: #4cd137; box-shadow: 0 0 12px rgba(76, 209, 55, 0.6); }
+.bar-fill.entropy { background: #e84118; box-shadow: 0 0 12px rgba(232, 65, 24, 0.6); }
+.bar-fill.luminosity { background: #fbc531; box-shadow: 0 0 12px rgba(251, 197, 49, 0.6); }
 
-/* COMPOSICIÓN */
-.composition-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    height: 100px; min-height: 100px; margin-top: 5px;
+/* Panel de Síntesis (Insight) */
+.tikkun-insight-panel {
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 2px solid #d4af37;
 }
-.comp-card {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 6px; position: relative; overflow: hidden; height: 100%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-.comp-bar { position: absolute; bottom: 0; left: 0; right: 0; opacity: 0.2; transition: height 0.8s ease; z-index: 0; }
-.comp-card.mother .comp-bar { background: gold; } .comp-card.double .comp-bar { background: crimson; } .comp-card.simple .comp-bar { background: cornflowerblue; }
-.comp-count { font-size: 2rem; font-weight: 700; z-index: 2; line-height: 1; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-.comp-label { font-size: 0.55rem; opacity: 0.8; z-index: 2; margin-top: 4px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
 
-/* FOOTER (Dominant Force) */
+.insight-title {
+    font-size: 0.6rem;
+    color: #d4af37;
+    margin-bottom: 8px;
+    letter-spacing: 0.2em;
+    font-weight: bold;
+}
+
+.insight-text {
+    font-family: 'Times New Roman', serif; /* Contraste elegante para lectura */
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-style: italic;
+}
+
 .dossier-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: auto;
-    padding: 15px 0;
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* Asegura visibilidad de Dominant Force */
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.1em;
 }
-.footer-val { font-weight: bold; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; }
-.force-fire { color: #e84118; } .force-water { color: #00a8ff; } .force-air { color: #fbc531; } .force-earth { color: #4cd137; }
+
+.footer-val {
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.force-fire { color: #e84118; }
+.force-water { color: #00a8ff; }
+.force-air { color: #f5f6fa; }
+.force-earth { color: #d4af37; }

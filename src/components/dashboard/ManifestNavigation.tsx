@@ -1,66 +1,58 @@
 'use client';
+
 import { useGematriaStore } from '@/stores/gematriaStore';
+import '@/styles/TechnicalView.css';
 
 const LEVELS = ['NEFESH', 'RUACH', 'NESHAMA', 'CHAYA', 'YECHIDA', 'ATZILUT'];
 
 export const ManifestNavigation = () => {
   const { expansionLevel, setExpansionLevel } = useGematriaStore();
 
+  // Cálculo del porcentaje de progreso (0% a 100%)
+  // Si hay 6 niveles: indices 0 a 5. 
+  // Nivel 0 = 0%, Nivel 5 = 100%.
+  const progressPercentage = (expansionLevel / (LEVELS.length - 1)) * 100;
+
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '0', 
-      width: '100%',
-      padding: '10px 0',
-      marginBottom: '5px'
-    }}>
-      {LEVELS.map((lvl, idx) => {
-        const isActive = idx === expansionLevel;
-        const isPast = idx < expansionLevel;
-        
-        return (
-          <div key={lvl} style={{ display: 'flex', alignItems: 'center' }}>
-            
-            {/* ITEM */}
-            <div 
+    <div className="tech-nav-container fade-in-panel">
+      
+      {/* LÍNEA DE PROGRESO (Absoluta detrás) */}
+      <div className="tech-nav-line">
+         <div 
+            className="tech-nav-line-fill" 
+            style={{ width: `${progressPercentage}%` }} 
+         />
+      </div>
+
+      {/* NODOS (Track) */}
+      <div className="tech-nav-track">
+        {LEVELS.map((lvl, idx) => {
+          const isActive = idx === expansionLevel;
+          const isPast = idx <= expansionLevel; // 'Past' incluye el actual para iluminar el camino
+
+          let nodeClass = 'tech-nav-node';
+          if (isActive) nodeClass += ' active';
+          else if (isPast) nodeClass += ' past';
+
+          return (
+            <button 
+              key={lvl} 
+              className={nodeClass}
               onClick={() => setExpansionLevel(idx)}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer',
-                opacity: isActive ? 1 : (isPast ? 0.6 : 0.3),
-                transform: isActive ? 'scale(1.1)' : 'scale(1)',
-                transition: 'all 0.3s ease'
-              }}
+              aria-label={`Select level ${lvl}`}
             >
-              {/* Icono Rombo */}
-              <div style={{
-                fontSize: '1.2rem', color: isActive ? '#fff' : 'inherit',
-                textShadow: isActive ? '0 0 10px #fff' : 'none',
-                marginBottom: '4px'
-              }}>
-                {isActive ? '◈' : (isPast ? '◆' : '◇')}
+              {/* Indicador Rombo */}
+              <div className="tech-node-indicator">
+                <div className="tech-node-core" />
               </div>
               
-              {/* Texto */}
-              <span style={{
-                fontSize: '0.5rem', letterSpacing: '0.1em', fontWeight: isActive ? 'bold' : 'normal'
-              }}>
-                {lvl}
-              </span>
-            </div>
-
-            {/* LÍNEA CONECTORA */}
-            {idx < LEVELS.length - 1 && (
-              <div style={{
-                width: '30px', height: '1px', 
-                background: isPast ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',
-                margin: '0 8px', marginTop: '-10px'
-              }} />
-            )}
-          </div>
-        );
-      })}
+              {/* Etiqueta */}
+              <span className="tech-label-main">{lvl}</span>
+            </button>
+          );
+        })}
+      </div>
+      
     </div>
   );
 };

@@ -7,11 +7,9 @@ import { getHebrewColor, getRecursiveExpansion } from '@/lib/gematriaUtils';
 import { TORAH_FIRST_WORDS } from '@/lib/constants';
 import '@/styles/TreeOfLife.css';
 
-// ... (MANTÉN LAS CONSTANTES SEFIROT Y PATHS IGUAL QUE ANTES) ...
-// Para ahorrar espacio aquí, asumo que ya las tienes. Si no, pídemelas.
-// (Incluiré la interfaz y constantes si copias y pegas directo para evitar errores)
-
+// --- CONSTANTES DE DEFINICIÓN DEL ÁRBOL ---
 interface SefiraDef { id: string; x: number; y: number; label: string; sub: string; color: string; hidden?: boolean; }
+
 const SEFIROT: Record<string, SefiraDef> = {
   KETER:   { id: 'KETER',   x: 300, y: 80,  label: 'KETER',   sub: 'CROWN',         color: '#FFFFFF' },
   CHOCHMA: { id: 'CHOCHMA', x: 500, y: 220, label: 'CHOCHMA', sub: 'WISDOM',        color: '#E0E0E0' },
@@ -35,9 +33,55 @@ const PATHS: Record<string, [string, string]> = {
   'ש': ['HOD', 'MALCHUT'], 'ת': ['YESOD', 'MALCHUT'],
 };
 
+// --- LÓGICA DE POSICIONAMIENTO ROBUSTA (4 LÍMITES) ---
+const getTooltipStyle = (x: number, y: number) => {
+    // SSR Check
+    if (typeof window === 'undefined') return { top: y, left: x };
+
+    // Dimensiones y Márgenes
+    const TOOLTIP_W = 320; 
+    const TOOLTIP_H = 180; 
+    const CURSOR_GAP = 20;
+    const SAFETY_MARGIN = 15; // Mínima distancia con el borde de pantalla
+
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+
+    // --- EJE X (Horizontal) ---
+    // 1. Intentar derecha
+    let left = x + CURSOR_GAP;
+
+    // 2. Si se desborda por la derecha -> Probar izquierda
+    if (left + TOOLTIP_W > winW - SAFETY_MARGIN) {
+        left = x - TOOLTIP_W - CURSOR_GAP;
+    }
+
+    // 3. Si AHORA se desborda por la izquierda (negativo) -> Forzar al margen izquierdo
+    if (left < SAFETY_MARGIN) {
+        left = SAFETY_MARGIN;
+    }
+
+    // --- EJE Y (Vertical) ---
+    // 1. Intentar abajo
+    let top = y + CURSOR_GAP;
+
+    // 2. Si se desborda por abajo -> Probar arriba
+    if (top + TOOLTIP_H > winH - SAFETY_MARGIN) {
+        top = y - TOOLTIP_H - CURSOR_GAP;
+    }
+
+    // 3. Si AHORA se desborda por arriba -> Forzar al margen superior
+    if (top < SAFETY_MARGIN) {
+        top = SAFETY_MARGIN;
+    }
+
+    return { top, left };
+};
+
 export const TreeOfLifeView = () => {
   const { inputText, school, expansionLevel } = useGematriaStore();
   const [hoverData, setHoverData] = useState<{ path: string | null, x: number, y: number }>({ path: null, x: 0, y: 0 });
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -54,12 +98,19 @@ export const TreeOfLifeView = () => {
     setHoverData({ path: letter, x: e.clientX, y: e.clientY });
   };
   const clearHover = () => setHoverData(prev => ({ ...prev, path: null }));
+  const toggleFullScreen = () => setIsFullScreen(!isFullScreen);
 
   return (
-    <div className="tree-wrapper fade-in-panel">
+    <div className={`tree-wrapper fade-in-panel ${isFullScreen ? 'fullscreen' : ''}`}>
+      
+      {/* Botones de Control */}
+      {isFullScreen ? (
+        <button className="tree-control-btn close-btn" onClick={toggleFullScreen}>✕ REGRESAR</button>
+      ) : (
+        <button className="tree-control-btn expand-btn" onClick={toggleFullScreen} title="Pantalla Completa">⤢</button>
+      )}
+
       <div className="tree-glass-panel">
-        
-        {/* Ajuste de viewBox y preserveAspectRatio para llenar mejor */}
         <svg viewBox="0 0 600 1100" preserveAspectRatio="xMidYMid meet" className="kabbalah-svg">
             <defs>
                 <filter id="glow-sefira">
@@ -73,16 +124,13 @@ export const TreeOfLifeView = () => {
                 if (!start || !end) return null;
                 const isActive = activeLetters.has(letter);
                 const color = getHebrewColor(letter, school);
-                
-                // VISIBILIDAD AUMENTADA:
-                // Gris #444 (más claro) y Opacidad 0.6 para inactivos
-                const stroke = isActive ? color : '#555'; 
+                const stroke = isActive ? color : '#444'; 
                 const width = isActive ? 6 : 2; 
                 const opacity = isActive ? 1 : 0.6;
 
                 return (
                     <g key={letter}>
-                        {/* Zona Hover */}
+                        {/* Zona Hover Invisible y Grande */}
                         <line x1={start.x} y1={start.y} x2={end.x} y2={end.y} 
                             stroke="rgba(0,0,0,0)" strokeWidth={60} 
                             onMouseMove={(e) => isActive && handleMouseMove(e, letter)} 
@@ -121,22 +169,28 @@ export const TreeOfLifeView = () => {
       </div>
 
       {mounted && hoverData.path && TORAH_FIRST_WORDS[hoverData.path] && createPortal(
-        <div className="slicer-tooltip-cursor" style={{ top: hoverData.y + 15, left: hoverData.x + 15 }}>
-            <div className="slicer-tooltip-content">
-                <div className="tooltip-header">
-                    <span className="t-label">PATH: {PATHS[hoverData.path].join(' - ')}</span>
-                    <span className="t-label">FREQ: {pathIntensity[hoverData.path]}</span>
-                </div>
-                <div className="tooltip-body">
-                    <span className="tooltip-char-big" style={{ color: getHebrewColor(hoverData.path, school) }}>{hoverData.path}</span>
-                    <div className="tooltip-info">
-                        <span className="t-val t-gold">{TORAH_FIRST_WORDS[hoverData.path].firstWord}</span>
-                        <span className="t-sub">{TORAH_FIRST_WORDS[hoverData.path].symbolicMeaning}</span>
+        (() => {
+            const pos = getTooltipStyle(hoverData.x, hoverData.y);
+            return (
+                <div className="slicer-tooltip-cursor" style={{ top: pos.top, left: pos.left }}>
+                    <div className="slicer-tooltip-content">
+                        <div className="tooltip-header">
+                            <span className="t-label">PATH: {PATHS[hoverData.path].join(' - ')}</span>
+                            <span className="t-label">FREQ: {pathIntensity[hoverData.path]}</span>
+                        </div>
+                        <div className="tooltip-body">
+                            <span className="tooltip-char-big" style={{ color: getHebrewColor(hoverData.path, school) }}>{hoverData.path}</span>
+                            <div className="tooltip-info">
+                                <span className="t-val t-gold">{TORAH_FIRST_WORDS[hoverData.path].firstWord}</span>
+                                <span className="t-sub">{TORAH_FIRST_WORDS[hoverData.path].symbolicMeaning}</span>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: '4px', textAlign: 'right' }}><span className="t-label">{TORAH_FIRST_WORDS[hoverData.path].bodyPart}</span></div>
                     </div>
                 </div>
-                <div style={{ marginTop: '4px', textAlign: 'right' }}><span className="t-label">{TORAH_FIRST_WORDS[hoverData.path].bodyPart}</span></div>
-            </div>
-        </div>, document.body
+            );
+        })(), 
+        document.body
       )}
     </div>
   );
