@@ -1,14 +1,11 @@
-// src/lib/types.ts
-
 export type KabbalahMode = 
   | 'Gra-Canon' 
   | 'ari' 
   | 'akashic' 
-  | 'SeferYetzirah-Standard'  // <--- FALTABA ESTE
+  | 'SeferYetzirah-Standard'
   | 'Traditional-Pure'
-  | 'Esoteric-Expanded';      // Agregado por seguridad si lo usas en el futuro
+  | 'Esoteric-Expanded';
 
-// --- HEBREW DATA STRUCTURES ---
 export interface HebrewLetterData {
     name: string;
     color: string;
@@ -23,8 +20,6 @@ export interface HebrewReference {
 }
 
 export type HebrewDataEntry = HebrewLetterData | HebrewReference;
-
-// --- GRAPH / WISDOM STRUCTURES ---
 
 export interface WisdomNode {
   type: 'node';

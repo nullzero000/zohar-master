@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TechnicalDossier } from '@/components/dashboard/TechnicalDossier';
 import { AnalysisSliders } from '@/components/dashboard/AnalysisSliders';
-import { RawManifestView } from '@/components/dashboard/RawManifestView'; // El nuevo componente
+import { RawManifestView } from '@/components/dashboard/RawManifestView';
+import { RectificationProtocols } from '@/components/dashboard/RectificationProtocols'; // <--- IMPORTACIÓN NUEVA
 import '@/styles/TechnicalView.css';
 
-type TechTab = 'SYSTEM' | 'BIO' | 'RAW';
+// Agregamos 'PROTO' a los tipos de pestaña
+type TechTab = 'SYSTEM' | 'BIO' | 'RAW' | 'PROTO';
 
 export const TechnicalView = () => {
   const [activeTab, setActiveTab] = useState<TechTab>('SYSTEM');
@@ -20,21 +22,29 @@ export const TechnicalView = () => {
             onClick={() => setActiveTab('SYSTEM')} 
             className={`tech-tab-btn ${activeTab === 'SYSTEM' ? 'active' : ''}`}
         >
-            SYSTEM METRICS
+            SYSTEM
         </button>
         <div className="tech-divider">/</div>
         <button 
             onClick={() => setActiveTab('BIO')} 
             className={`tech-tab-btn ${activeTab === 'BIO' ? 'active' : ''}`}
         >
-            BIO-RESONANCE
+            BIO-RES
         </button>
         <div className="tech-divider">/</div>
         <button 
             onClick={() => setActiveTab('RAW')} 
             className={`tech-tab-btn ${activeTab === 'RAW' ? 'active' : ''}`}
         >
-            RAW MANIFEST
+            MANIFEST
+        </button>
+        <div className="tech-divider">/</div>
+        {/* NUEVA PESTAÑA: CODEX */}
+        <button 
+            onClick={() => setActiveTab('PROTO')} 
+            className={`tech-tab-btn ${activeTab === 'PROTO' ? 'active' : ''}`}
+        >
+            CODEX
         </button>
       </div>
 
@@ -52,6 +62,8 @@ export const TechnicalView = () => {
                     {activeTab === 'SYSTEM' && <TechnicalDossier />}
                     {activeTab === 'BIO' && <AnalysisSliders />}
                     {activeTab === 'RAW' && <RawManifestView />}
+                    {/* NUEVO RENDERIZADO */}
+                    {activeTab === 'PROTO' && <RectificationProtocols />}
                 </div>
             </motion.div>
         </AnimatePresence>

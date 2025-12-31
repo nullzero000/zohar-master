@@ -46,7 +46,6 @@ export const analyzeFrequencyAndColor = (chars: string[], school: KabbalahMode) 
     }
   });
 
-  // BLINDAJE ANTI-CRASH
   if (validCharCount === 0) {
     return {
       mixedColor: 'rgb(30, 30, 30)',

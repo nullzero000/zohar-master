@@ -14,15 +14,23 @@ interface Props {
 type VortexType = 'DENSE' | 'SMOOTH';
 type CymaticShape = 'FULL' | 'CIRCLE' | 'HEXAGON' | 'DIAMOND' | 'FLOWER';
 
+// Lógica simple de Tagin (Solo conteo)
+const TAGIN_3 = new Set(['ש', 'ע', 'ט', 'נ', 'ז', 'ג', 'צ', 'ץ', 'ן']);
+const TAGIN_1 = new Set(['ב', 'ד', 'ק', 'ח', 'י', 'ה']);
+
 export const ManifestationSequence = ({ onComplete }: Props) => {
     const { inputText, school } = useGematriaStore();
     const chars = inputText.split('');
 
-    // ESTADOS INDEPENDIENTES: Permiten activar varias capas a la vez
+    // Estados originales
     const [showDivine, setShowDivine] = useState(false);
     const [showVortex, setShowVortex] = useState(false);
     const [showResonance, setShowResonance] = useState(false);
     const [showSacred, setShowSacred] = useState(false);
+    
+    // Nuevos estados solicitados
+    const [activeTagin, setActiveTagin] = useState(false);
+    const [whiteMode, setWhiteMode] = useState(false);
 
     const [vortexType, setVortexType] = useState<VortexType>('DENSE');
     const [cymaticShape, setCymaticShape] = useState<CymaticShape>('FULL');
@@ -30,18 +38,10 @@ export const ManifestationSequence = ({ onComplete }: Props) => {
     const { vortexBg, paletteStr } = useMemo(() => {
         if (chars.length === 0) return { vortexBg: '#000', paletteStr: '#fff, #000' };
         const allColors = chars.map(c => getHebrewColor(c, school));
-        const counts: Record<string, number> = {};
-        let maxCount = 0;
-        let dominant = allColors[0];
-        for (const c of allColors) {
-            counts[c] = (counts[c] || 0) + 1;
-            if (counts[c] > maxCount) { maxCount = counts[c]; dominant = c; }
-        }
-        const bg = dominant.replace('rgb', 'rgba').replace(')', ', 0.5)');
+        const bg = allColors[0].replace('rgb', 'rgba').replace(')', ', 0.5)');
         let repeatedColors: string[] = [];
         for (let i = 0; i < 5; i++) repeatedColors = [...repeatedColors, ...allColors];
         repeatedColors.push(allColors[0]);
-
         return { vortexBg: bg, paletteStr: repeatedColors.join(', ') };
     }, [chars, school]);
 
@@ -54,15 +54,17 @@ export const ManifestationSequence = ({ onComplete }: Props) => {
     if (!chars.length) return null;
 
     return (
-        <div className="manifestation-sequence-container">
+        <div className={`manifestation-sequence-container ${whiteMode ? 'mode-white' : ''}`}>
             
-            {/* CAPA 1: LUZ DIVINA (Fondo Profundo) */}
-            <div className="divine-source-wrapper" style={{ opacity: showDivine ? 1 : 0 }}>
-                <div className="source-rays" />
-                <div className="source-core" />
-            </div>
+            {/* CAPA 1: LUZ DIVINA */}
+            {!whiteMode && (
+                <div className="divine-source-wrapper" style={{ opacity: showDivine ? 1 : 0 }}>
+                    <div className="source-rays" />
+                    <div className="source-core" />
+                </div>
+            )}
 
-            {/* CAPA 2: VÓRTICE (Estructura de Color) */}
+            {/* CAPA 2: VÓRTICE */}
             <div className="vortex-container" style={{ 
                 opacity: showVortex ? 0.7 : 0,
                 '--vortex-bg': vortexBg,
@@ -74,34 +76,48 @@ export const ManifestationSequence = ({ onComplete }: Props) => {
                 </div>
             </div>
 
-            {/* CAPA 3: RESONANCIA (Ondas) */}
+            {/* CAPA 3: RESONANCIA */}
             {showResonance && <InterferenceField />}
 
-            {/* CAPA 4: GEOMETRÍA SAGRADA (Malla Superior) */}
+            {/* CAPA 4: GEOMETRÍA */}
             {showSacred && <SacredGeometry />}
 
-            {/* PARTÍCULAS SUTILES */}
-            <div className="source-particles" style={{ opacity: showDivine ? 0.4 : 0 }} />
+            {/* PARTÍCULAS */}
+            <div className="source-particles" style={{ opacity: showDivine ? 0.4 : 0, filter: whiteMode ? 'invert(1)' : 'none' }} />
 
-            {/* LETRAS (Siempre al frente) */}
+            {/* LETRAS */}
             <div className="seq-word-container">
                 {chars.map((char, index) => {
                     const color = getHebrewColor(char, school);
                     const isBlack = isOntologicalBlack(color);
                     const glowColor = isBlack ? 'rgba(255, 255, 255, 0.7)' : color;
+                    
+                    const tagCount = TAGIN_3.has(char) ? 3 : (TAGIN_1.has(char) ? 1 : 0);
+
                     return (
-                        <span key={index} className="seq-char" style={{ 
-                            '--char-color': color,
-                            '--char-glow': glowColor,
-                            '--delay': `${index * 0.3}s`
-                        } as React.CSSProperties}>
-                            {char}
-                        </span>
+                        <div key={index} style={{position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                            {/* TAGIN SIMPLE (Sin plasma feo, solo indicadores de luz) */}
+                            {activeTagin && tagCount > 0 && (
+                                <div className="tagin-simple-container">
+                                    {[...Array(tagCount)].map((_, i) => (
+                                        <div key={i} className="simple-tag" style={{backgroundColor: color, boxShadow: `0 0 5px ${color}`}}/>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            <span className="seq-char" style={{ 
+                                '--char-color': color,
+                                '--char-glow': glowColor,
+                                '--delay': `${index * 0.3}s`
+                            } as React.CSSProperties}>
+                                {char}
+                            </span>
+                        </div>
                     );
                 })}
             </div>
 
-            {/* CONTROLES CON AUTO-HIDE */}
+            {/* CONTROLES (Manteniendo tu estructura original) */}
             <div className="seq-controls-auto-hide">
                 <div className="seq-controls">
                     <button onClick={onComplete} className="btn-action-divine">
@@ -109,6 +125,16 @@ export const ManifestationSequence = ({ onComplete }: Props) => {
                     </button>
 
                     <div className="mode-toggles">
+                        <button onClick={() => setWhiteMode(!whiteMode)} className={`btn-toggle-mode btn-void ${whiteMode ? 'active' : ''}`}>
+                            {whiteMode ? '◉ LIENZO: BLANCO' : '○ LIENZO: VACÍO'}
+                        </button>
+
+                        <button onClick={() => setActiveTagin(!activeTagin)} className={`btn-toggle-mode btn-tagin ${activeTagin ? 'active' : ''}`}>
+                            {activeTagin ? '♛ TAGIN' : '♕ TAGIN'}
+                        </button>
+
+                        <div style={{width: 1, height: 20, background: 'rgba(255,255,255,0.2)', margin: '0 5px'}} />
+
                         <button onClick={() => setShowDivine(!showDivine)} className={`btn-toggle-mode ${showDivine ? 'active' : ''}`}>
                             {showDivine ? '✦ LUZ' : '✧ LUZ'}
                         </button>

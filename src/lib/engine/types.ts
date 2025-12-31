@@ -1,41 +1,63 @@
 // src/lib/engine/types.ts
 
-// --- FUERZA OPERATIVA DE LA LETRA ---
 export type ForcePolarity = 'STABLE' | 'VOLATILE' | 'DUAL';
 export type ForceScope = 'GLOBAL' | 'SYSTEMIC' | 'LOCAL';
-export type ForceFunction = 'REGULATE' | 'UNSETTLE' | 'DIRECT' | 'JUDGE' | 'CONTAIN';
-export type EmotionalTone = 'COLD' | 'WARM' | 'NEUTRAL' | 'BURNING';
+
+// Nuevas Funciones Operativas (Sección 3.2 del documento)
+export type ForceFunction = 
+  | 'EQUILIBRIUM' // Aleph
+  | 'DAMPEN'      // Mem (Amortiguar)
+  | 'ACCELERATE'  // Shin
+  | 'GATE_OPEN'   // Bet
+  | 'AMPLIFY'     // Gimel
+  | 'TRANSMIT'    // Dalet
+  | 'MOLD'        // Kaf
+  | 'EXPRESS'     // Pe
+  | 'SUSTAIN'     // Resh/Samej
+  | 'SEAL'        // Tav
+  | 'DIRECT'      // Simples (Dirección)
+  | 'CONNECT'     // Vav
+  | 'SEED'        // Yud
+  | 'JUDGE';      // Finales/Duras
+
 export type CosmicTempo = 'STILL' | 'BREATHING' | 'FLOWING' | 'RAPID' | 'CHAOTIC';
+export type ElementalRoot = 'FIRE' | 'WATER' | 'AIR' | 'EARTH';
 
 export interface AnimationPhysics {
-  duration: number; // ms
-  easing: string; // 'easeInOutSine', 'easeOutQuad', etc.
-  intensity: number; // 0-1 (Para escala, vibración, opacidad)
+  duration: number;
+  easing: string;
+  intensity: number;
   behavior: 'BREATHE' | 'PULSE' | 'ORBIT' | 'COMPRESS' | 'EXPAND';
 }
 
 export interface LetterForceField {
-  type: 'MOTHER' | 'DOUBLE' | 'SIMPLE';
-  polarity: ForcePolarity;
-  weight: number; // 0-100 (Impacto en el sistema)
-  scope: ForceScope;
+  type: 'MOTHER' | 'DOUBLE' | 'SIMPLE' | 'FINAL';
+  elementalRoot: ElementalRoot;
+  weight: number;       // 1-100 (Inercia espiritual)
+  tensionLevel: number; // 0-100 (Contribución a entropía/Din)
+  stabilityIndex: number; // 0-100 (Capacidad de anclaje)
   function: ForceFunction;
-  tone: EmotionalTone;
-  tempo: CosmicTempo;
-  physics: AnimationPhysics; // Tu guía de animación técnica
+  tone: 'COLD' | 'WARM' | 'NEUTRAL' | 'BURNING';
+  physics: AnimationPhysics;
 }
 
-// --- ESTADO DEL UNIVERSO (STORE GLOBAL) ---
+// Estado Global del Motor
 export interface CosmosState {
-  stabilityIndex: number; // 0-100 (Aleph sube, Shin baja)
-  entropyLevel: number;   // 0-100 (Caos del sistema)
-  tensionLevel: number;   // 0-100 (Carga dramática)
-  rhythm: CosmicTempo;    // Velocidad del loop de animación global
-  luminosity: number;     // 0-100 (Claridad divina)
-  moralField: number;     // -50 (Juicio) a +50 (Misericordia)
-  perceptionDepth: number;// 0-100 (Profundidad Z visual)
+  stabilityIndex: number;
+  entropyLevel: number;
+  tensionLevel: number;
+  rhythm: CosmicTempo;
+  luminosity: number;
+  moralField: number;
+  perceptionDepth: number;
+  dominantForce: ElementalRoot | 'NONE';
+  isDivinePresence: boolean;
   
-  // Estado de Dominancia
-  dominantForce: 'NONE' | 'FIRE' | 'WATER' | 'AIR' | 'EARTH';
-  isDivinePresence: boolean; // Flag para YHVH
+  // Diagnóstico de Sombras (Sección 5)
+  shadowDiagnosis: {
+    hasShadow: boolean;
+    type: 'NONE' | 'EXCESS_GEVURAH' | 'EMPTY_VESSEL' | 'SHEVIRAH';
+    message: string;
+    rectification: string;
+  };
 }

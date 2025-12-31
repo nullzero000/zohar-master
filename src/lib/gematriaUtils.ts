@@ -1,32 +1,32 @@
-// src/lib/gematriaUtils.ts
-
 import { LETTER_COLOR_TABLE, LetterColorProfile } from '@/data/letterColors';
 import { HEBREW_DATA, MILUY_MAP, NORMALIZE_MAP } from '@/lib/constants';
-import { HebrewLetterData, KabbalahMode } from '@/lib/types';
+import { HebrewLetterData } from '@/lib/types';
 
 const SOFIT_CHARS = new Set(['ך', 'ם', 'ן', 'ף', 'ץ']);
 
-// [CORRECCIÓN CRÍTICA] Mapeo de IDs de SchoolSelector a Columnas de la Tabla
 const SCHOOL_TO_TABLE_KEY: Record<string, keyof Omit<LetterColorProfile, 'letter' | 'value'>> = {
   've': 'gra',
   'gra': 'gra',
+  'Gra-Canon': 'gra',
   'shefa': 'akashic',
   'akashic': 'akashic',
   'cordovero': 'traditional',
   'traditional': 'traditional',
+  'Traditional-Pure': 'traditional',
   'abulafia': 'esoteric',
-  'esoteric': 'esoteric'
+  'esoteric': 'esoteric',
+  'Esoteric-Expanded': 'esoteric',
+  'SeferYetzirah-Standard': 'traditional',
+  'ari': 'gra'
 };
 
-/**
- * 1. LÓGICA DE COLOR
- */
 export const getHebrewColor = (char: string, school: string): string => {
   if (!char || char.trim() === '') return 'transparent';
   const normalized = NORMALIZE_MAP[char] || char;
   const found = LETTER_COLOR_TABLE.find(l => l.letter === normalized);
   if (found) {
     const tableKey = SCHOOL_TO_TABLE_KEY[school] || 'esoteric';
+    // @ts-ignore - Acceso dinámico seguro por fallback
     return found[tableKey];
   }
   const dataRef = HEBREW_DATA[normalized];
@@ -37,21 +37,11 @@ export const getHebrewColor = (char: string, school: string): string => {
   return 'rgba(255, 255, 255, 0.5)';
 };
 
-/**
- * [CORREGIDO] DETECCIÓN DE OSCURIDAD
- * Se ha aumentado la sensibilidad para detectar Ayin (16,16,16 = 48).
- */
 export const isOntologicalBlack = (colorString: string): boolean => {
   if (!colorString) return false;
   const c = colorString.replace(/\s/g, '').toLowerCase();
-  
-  // Negros absolutos
   if (c === '#000' || c === '#000000') return true;
   if (c === 'rgb(0,0,0)' || c === 'rgba(0,0,0,1)') return true;
-  
-  // Detección RGB:
-  // Antes el límite era 40. Ayin (16+16+16=48) quedaba fuera.
-  // Nuevo límite: 60. Ahora Ayin entra en la categoría de "Oscuridad".
   const rgbMatch = c.match(/rgb\((\d+),(\d+),(\d+)\)/);
   if (rgbMatch) {
     const [_, r, g, b] = rgbMatch;
@@ -60,7 +50,6 @@ export const isOntologicalBlack = (colorString: string): boolean => {
   return false;
 };
 
-// ... (El resto de funciones getHebrewValue, getRecursiveExpansion, etc. se mantienen igual)
 export const getHebrewValue = (char: string, useSofitMode: boolean): number => {
     if (!char) return 0;
     const entry = HEBREW_DATA[char];
@@ -94,7 +83,7 @@ export const calculateCrystalRGB = (text: string): string => {
   if (!text) return 'rgba(255, 255, 255, 0.1)';
   let rTotal = 0, gTotal = 0, bTotal = 0, count = 0;
   text.split('').forEach(char => {
-    const colorStr = getHebrewColor(char, 'shefa'); // Forzamos Shefa/Akashic para el cristal
+    const colorStr = getHebrewColor(char, 'shefa');
     const match = colorStr.match(/\d+/g);
     if (match && match.length === 3) {
       rTotal += parseInt(match[0]); gTotal += parseInt(match[1]); bTotal += parseInt(match[2]); count++;
@@ -102,20 +91,4 @@ export const calculateCrystalRGB = (text: string): string => {
   });
   if (count === 0) return 'rgba(255, 255, 255, 0.1)';
   return `rgb(${Math.round(rTotal / count)}, ${Math.round(gTotal / count)}, ${Math.round(bTotal / count)})`;
-};
-
-// Lógica interna para la traducción de estados
-const getKabbalisticInsight = (stability: number, entropy: number, luminosity: number) => {
-  // Caso: Ego sin control (Mucha entropía, poca estabilidad)
-  if (entropy > 65 && stability < 40) {
-    return "ESTADO DE CONTRACCIÓN: El ego está fragmentando la intención. La sombra domina por falta de vasija (Kli). Se requiere silencio y restricción (Tzimtzum) para recuperar el centro.";
-  }
-  
-  // Caso: Luz Elevada (Mucha estabilidad y luminosidad)
-  if (luminosity > 70 && stability > 70) {
-    return "LUZ ELEVADA: La secuencia refleja un canal alineado. El Tikkun fluye sin resistencia del ego, permitiendo que la voluntad superior se manifieste con claridad.";
-  }
-
-  // Caso: Tikkun en proceso (Equilibrio)
-  return "PROCESO DE RECTIFICACIÓN: Equilibrio entre las fuerzas de expansión y restricción. La sombra sirve como límite necesario para que la luz no se disipe.";
 };

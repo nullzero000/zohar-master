@@ -1,16 +1,11 @@
 import { KabbalahMode } from './types';
 
-// --- DEFINICIONES DE TIPOS ---
-
 export interface TorahWordData {
   bodyPart: string;
   firstWord: string;
   symbolicMeaning: string;
 }
 
-// --- BASES DE DATOS ---
-
-// 1. PRIMERAS PALABRAS Y ANATOMÍA MÍSTICA (Tu Data Corregida)
 export const TORAH_FIRST_WORDS: Record<string, TorahWordData> = {
   'א': { bodyPart: 'Pecho / Pulmones', firstWord: 'Elohim (אֱלֹהִים)', symbolicMeaning: 'Unidad, inicio divino' },
   'ב': { bodyPart: 'Boca / Sabiduría', firstWord: 'Bereshit (בְּרֵאשִׁית)', symbolicMeaning: 'Casa, dualidad de creación' },
@@ -34,16 +29,12 @@ export const TORAH_FIRST_WORDS: Record<string, TorahWordData> = {
   'ר': { bodyPart: 'Fosa Nasal Izquierda', firstWord: 'Ruach (רוּחַ)', symbolicMeaning: 'Respiración, espíritu' },
   'ש': { bodyPart: 'Cráneo (Fuego Superior)', firstWord: 'Shamayim (שָׁמַיִם)', symbolicMeaning: 'Fuego, juicio y retorno' },
   'ת': { bodyPart: 'Boca (final)', firstWord: 'Tohu (תֹהוּ)', symbolicMeaning: 'Sello, verdad absoluta' },
-  
-  // SOFITS (Finales) - Mapeadas a su raíz
   'ך': { bodyPart: 'Ojo Derecho', firstWord: 'Ki (כִּי)', symbolicMeaning: 'Palma (Final)' },
   'ם': { bodyPart: 'Vientre (Agua)', firstWord: 'Merachefet (מְרַחֶפֶת)', symbolicMeaning: 'Matriz (Final)' },
   'ן': { bodyPart: 'Intestinos', firstWord: 'Nefesh (נֶפֶשׁ)', symbolicMeaning: 'Alma (Final)' },
   'ף': { bodyPart: 'Oído Izquierdo', firstWord: 'Pnei (פְּנֵי)', symbolicMeaning: 'Boca (Final)' },
   'ץ': { bodyPart: 'Garganta', firstWord: 'Tzelem (צֶלֶם)', symbolicMeaning: 'Imagen (Final)' }
 };
-
-// 2. OTROS CONSTANTES NECESARIOS (Que ya deberías tener, asegúrate de no borrarlos)
 
 export const SCHOOL_MODES: { id: KabbalahMode; label: string }[] = [
   { id: 'Gra-Canon', label: 'GRA (ARI)' },
@@ -67,7 +58,6 @@ export const LETTER_HIERARCHY: Record<string, 'MOTHER' | 'DOUBLE' | 'SIMPLE'> = 
   'ן': 'SIMPLE', 'ץ': 'SIMPLE'
 };
 
-// MAPAS DE NORMALIZACIÓN (Necesarios para el motor)
 export const NORMALIZE_MAP: Record<string, string> = {
   'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ'
 };
@@ -95,7 +85,6 @@ export const MILUY_MAP: Record<string, string[]> = {
   'ר': ['ר', 'י', 'ש'],
   'ש': ['ש', 'י', 'ן'],
   'ת': ['ת', 'ו'],
-  // SOFITS Mapeados a su raíz
   'ך': ['כ', 'ף'],
   'ם': ['מ', 'ם'],
   'ן': ['נ', 'ו', 'ן'],
@@ -104,33 +93,31 @@ export const MILUY_MAP: Record<string, string[]> = {
 };
 
 export const HEBREW_DATA: Record<string, any> = {
-  // Aquí va tu base de datos de valores (1, 2, 3...) que ya tenías.
-  // Si la necesitas completa dímelo, pero asumo que esa parte no daba error.
-  'א': { value: 1, name: 'Aleph' },
-  'ב': { value: 2, name: 'Bet' },
-  'ג': { value: 3, name: 'Gimel' },
-  'ד': { value: 4, name: 'Dalet' },
-  'ה': { value: 5, name: 'He' },
-  'ו': { value: 6, name: 'Vav' },
-  'ז': { value: 7, name: 'Zayin' },
-  'ח': { value: 8, name: 'Chet' },
-  'ט': { value: 9, name: 'Tet' },
-  'י': { value: 10, name: 'Yod' },
-  'כ': { value: 20, name: 'Kaf', sofitValue: 500 },
+  'א': { value: 1, name: 'Aleph', color: '#ffd700' },
+  'ב': { value: 2, name: 'Bet', color: '#ffffff' },
+  'ג': { value: 3, name: 'Gimel', color: '#ffffff' },
+  'ד': { value: 4, name: 'Dalet', color: '#ffffff' },
+  'ה': { value: 5, name: 'He', color: '#b40000' },
+  'ו': { value: 6, name: 'Vav', color: '#ffffff' },
+  'ז': { value: 7, name: 'Zayin', color: '#4169e1' },
+  'ח': { value: 8, name: 'Chet', color: '#ffd700' },
+  'ט': { value: 9, name: 'Tet', color: '#c8a2c8' },
+  'י': { value: 10, name: 'Yod', color: '#000000' },
+  'כ': { value: 20, name: 'Kaf', sofitValue: 500, color: '#ffffff' },
   'ך': { ref: 'כ' },
-  'ל': { value: 30, name: 'Lamed' },
-  'מ': { value: 40, name: 'Mem', sofitValue: 600 },
+  'ל': { value: 30, name: 'Lamed', color: '#d2691e' },
+  'מ': { value: 40, name: 'Mem', sofitValue: 600, color: '#0000c8' },
   'ם': { ref: 'מ' },
-  'נ': { value: 50, name: 'Nun', sofitValue: 700 },
+  'נ': { value: 50, name: 'Nun', sofitValue: 700, color: '#ffa07a' },
   'ן': { ref: 'נ' },
-  'ס': { value: 60, name: 'Samech' },
-  'ע': { value: 70, name: 'Ayin' },
-  'פ': { value: 80, name: 'Pe', sofitValue: 800 },
+  'ס': { value: 60, name: 'Samech', color: '#ba55d3' },
+  'ע': { value: 70, name: 'Ayin', color: '#101010' },
+  'פ': { value: 80, name: 'Pe', sofitValue: 800, color: '#ffffff' },
   'ף': { ref: 'פ' },
-  'צ': { value: 90, name: 'Tzadi', sofitValue: 900 },
+  'צ': { value: 90, name: 'Tzadi', sofitValue: 900, color: '#90ee90' },
   'ץ': { ref: 'צ' },
-  'ק': { value: 100, name: 'Qof' },
-  'ר': { value: 200, name: 'Resh' },
-  'ש': { value: 300, name: 'Shin' },
-  'ת': { value: 400, name: 'Tav' }
+  'ק': { value: 100, name: 'Qof', color: '#b0e0e6' },
+  'ר': { value: 200, name: 'Resh', color: '#ffffff' },
+  'ש': { value: 300, name: 'Shin', color: '#dc0000' },
+  'ת': { value: 400, name: 'Tav', color: '#ffffff' }
 };

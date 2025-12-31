@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useGematriaStore } from '@/stores/gematriaStore';
 import '@/styles/Home.css';
@@ -10,21 +10,20 @@ import '@/styles/UIControls.css';
 import { HebrewInput } from '@/components/ui/HebrewInput';
 import { HebrewKeyboard } from '@/components/ui/HebrewKeyboard';
 import { SchoolSelector } from '@/components/ui/SchoolSelector';
-import { VisualSelector } from '@/components/ui/VisualSelector'; // Asegúrate de tener este componente
+import { VisualSelector } from '@/components/ui/VisualSelector';
 
 // Visuals
 import { HebrewGalaxy } from '@/components/visuals/HebrewGalaxy';
 import { MysticParticles } from '@/components/visuals/MysticParticles';
 import { LetterGlitch } from '@/components/visuals/LetterGlitch';
+import { ManifestationSequence } from '@/components/visuals/ManifestationSequence';
 
 // Dashboard
-import { GematriaTotal } from '@/components/dashboard/GematriaTotal';
 import { TechnicalView } from '@/components/dashboard/TechnicalView';
 import { TreeOfLifeView } from '@/components/dashboard/TreeOfLifeView';
 import { VectorDataView } from '@/components/dashboard/VectorDataView';
 import { ManifestNavigation } from '@/components/dashboard/ManifestNavigation';
 import { DashboardTabs } from '@/components/dashboard/DashboardTabs';
-import { ManifestationSequence } from '@/components/visuals/ManifestationSequence';
 
 export const Home = () => {
     const {
@@ -63,7 +62,7 @@ export const Home = () => {
             </AnimatePresence>
 
             <div className="layer-ui">
-                {/* HEADER: PILA VERTICAL (ESCUELAS ARRIBA, VISUALES ABAJO) */}
+                {/* HEADER */}
                 <header className={`ui-header ${isManifesting ? 'mobile-hidden' : ''}`}>
                     <div className="header-stack">
                         <SchoolSelector />
@@ -81,19 +80,16 @@ export const Home = () => {
                     </div>
                 </section>
 
-                {/*Overlay panel*/}
+                {/* OVERLAY PANEL */}
                 <div className={`data-panel-wrapper fade-transition ${isOverlayActive ? 'is-visible' : 'is-hidden'}`}>
                     <button onClick={handleClose} className="panel-close-btn">×</button>
                     <div className="panel-stack" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '10px' }}>
 
-                        {/* 1. Navegación superior (Niveles) */}
+                        {/* 1. Navegación superior */}
                         <div style={{ flexShrink: 0 }}> <ManifestNavigation /> </div>
 
                         {/* 2. Área de contenido dinámico */}
                         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-
-                            {/* ELIMINADO: <GematriaTotal /> ya no va aquí fuera */}
-
                             <div style={{ flex: 1, position: 'relative', minHeight: 0, marginTop: '10px' }}>
                                 {manifestView === 'dossier' && <TechnicalView />}
                                 {manifestView === 'tree' && <TreeOfLifeView />}

@@ -1,0 +1,87 @@
+.hebrew-structure-unit {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0 8px; /* Espaciado entre letras */
+}
+
+/* === GLIFO DE LA LETRA === */
+.letter-glyph-main {
+    font-family: 'Times New Roman', serif;
+    font-size: 6rem;
+    font-weight: 700;
+    line-height: 0.8;
+    z-index: 10;
+    position: relative;
+    transition: all 0.5s ease;
+}
+
+/* Ajuste de alto contraste para Modo Blanco */
+.mode-white .letter-glyph-main {
+    filter: brightness(0.8) contrast(1.2); 
+}
+
+/* === ESTRUCTURA DE TAGIN (PLASMA) === */
+.tagin-rack {
+    position: absolute;
+    bottom: 80%; /* Nace de la cabeza de la letra */
+    display: flex;
+    gap: 6px; /* Separación estricta entre agujas */
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Ajuste fino de posición (Izquierda visual) */
+.tagin-rack.count-3 { left: 40%; transform: translateX(-50%); }
+.tagin-rack.count-1 { left: 25%; }
+
+/* La Aguja: Verticalidad estricta */
+.plasma-needle {
+    position: relative;
+    width: 4px;
+    height: 45px;
+    transform-origin: bottom center;
+    animation: tension-vibration 0.1s infinite alternate;
+}
+
+/* Núcleo: "Fuego Negro" (Materia densa) */
+.plasma-core {
+    position: absolute; inset: 0;
+    background-color: #000; 
+    border-radius: 2px 2px 0 0;
+    z-index: 2;
+    opacity: 0.9;
+}
+
+/* Aura: "Fuego Blanco" (Halo de energía) */
+.plasma-aura {
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: 0;
+    background-color: var(--needle-color);
+    filter: blur(3px);
+    opacity: 0.8;
+    z-index: 1;
+    animation: plasma-pulse 2s infinite ease-in-out;
+}
+
+/* Inversión para Modo Blanco */
+.mode-white .plasma-core { background-color: var(--needle-color); }
+.mode-white .plasma-aura { background-color: rgba(0,0,0,0.1); filter: blur(1px); }
+
+/* === ANIMACIONES FÍSICAS === */
+@keyframes tension-vibration {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(1.02); }
+}
+
+@keyframes plasma-pulse {
+    0%, 100% { opacity: 0.6; transform: scaleX(1); }
+    50% { opacity: 1; transform: scaleX(1.3); }
+}
+
+@media (max-width: 600px) {
+    .letter-glyph-main { font-size: 3.5rem; }
+    .plasma-needle { height: 25px; width: 3px; }
+}
